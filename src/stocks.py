@@ -1,8 +1,6 @@
-import backtrader as bt
 import enum
 
-from loader import load_stock_history
-from typing import List
+import backtrader as bt
 
 
 class Stock(enum.Enum):
@@ -27,8 +25,17 @@ class StockData:
         self.data = data
 
 
-def load_stock_data(cerebro: bt.Cerebro, stocks: List[Stock], start: str, end: str):
-    for stock in stocks:
-        df = load_stock_history(stock.code, start, end)
-        data = bt.feeds.PandasData(dataname=df)
-        cerebro.adddata(data, name=stock.stockname)
+class PEMarket(enum.Enum):
+    SH_A = ('SH_A', 'sh')
+    SZ_A = ('SZ_A', 'sz')
+    ZX = ('ZX', 'zx')
+    CY = ('CY', 'cy')
+    KC = ('KC', 'kc')
+    ALL = ('All', 'all')
+    HS300 = ('HS300', '000300.XSHG')
+    SZ50 = ('SZ50', '000016.XSHG')
+    ZZ500 = ('ZZ500', '000905.XSHG')
+
+    def __init__(self, market: str, code: str):
+        self.market = market
+        self.code = code

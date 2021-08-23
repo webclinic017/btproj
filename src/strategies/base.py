@@ -12,15 +12,18 @@ class BaseStrategy(bt.Strategy):
     def log(self, txt, dt=None, doprint=False):
         """ Logging function fot this strategy"""
         if doprint or self.params.printlog:
-            dt = dt or self.datas[0].datetime.date(0)
-            print('%s, %s' % (dt.isoformat(), txt))
+            print(self.log_text(txt, dt))
+
+    def log_text(self, txt, dt=None):
+        dt = dt or self.datas[0].datetime.date(0)
+        return '%s, %s' % (dt.isoformat(), txt)
 
     def notify_trade(self, trade):
         if not trade.isclosed:
             return
 
-        self.log('OPERATION PROFIT, %s, GROSS %.3f, NET %.3f' %
-                 (get_data_name(trade.data), trade.pnl, trade.pnlcomm))
+        self.log('OPERATION PROFIT, %s, GROSS %.3f, NET %.3f, DAYS %d' %
+                 (get_data_name(trade.data), trade.pnl, trade.pnlcomm, (trade.dtclose-trade.dtopen)))
 
     def stop(self):
         self.log('%s Ending Value %.3f' %

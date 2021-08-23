@@ -1,5 +1,9 @@
+from typing import List
+
 import akshare as ak
+import backtrader as bt
 import pandas as pd
+
 import stocks
 
 
@@ -71,6 +75,35 @@ def force_load_north_single(type, indicator):
     history.to_csv(filename)
 
 
+def force_load_market_pe_history():
+    for market in stocks.PEMarket:
+        force_load_market_pe_history_single(market.code)
+
+
+def force_load_market_pe_history_single(market):
+    filename = get_datafile_name('market_pe_' + market)
+    history = ak.stock_a_pe(market=market)
+    history.to_csv(filename)
+    return history
+
+
+def load_market_pe_single(market, start=None, end=None):
+    filename = get_datafile_name('market_pe_' + market)
+    try:
+        history = pd.read_csv(filename)
+    except FileNotFoundError:
+        force_load_market_pe_history()
+        history = pd.read_csv(filename)
+    return process_stock_history(history, start, end)
+
+
+def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str):
+    for stock in stocks:
+        df = load_stock_history(stock.code, start, end)
+        data = bt.feeds.PandasData(dataname=df)
+        cerebro.adddata(data, name=stock.stockname)
+
+
 if __name__ == '__main__':
     for stock in stocks.Stock:
         force_load_stock_history(stock.code)
@@ -78,3 +111,6 @@ if __name__ == '__main__':
 
     force_load_north()
     print('north loaded')
+
+    force_load_market_pe_history()
+    print('market PE loaded')

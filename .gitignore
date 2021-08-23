@@ -2,3 +2,5 @@
 /.idea/
 /src/__pycache__/
 /report/
+*.pyc
+src/.ipynb_checkpoints
