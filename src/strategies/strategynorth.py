@@ -1,6 +1,6 @@
 import datetime
 
-from backtrader.indicators import MACD, CrossOver
+from backtrader.indicators import SmoothedMovingAverage
 
 import loader
 from strategies.one_order_strategy import OneOrderStrategy
@@ -18,8 +18,6 @@ class StrategyNorth(OneOrderStrategy):
     def __init__(self):
         OneOrderStrategy.__init__(self)
         self.north_history = loader.load_north_single('sh')
-        self.macd = MACD()
-        self.macd_crossover = CrossOver(self.macd.lines.macd, self.macd.lines.signal)
 
     def next(self):
         if self.order:
