@@ -75,6 +75,7 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 
 
 # run(Strategy2, [Stock.HS300, Stock.CYB50], start='2015-01-01')
+# run(Strategy2, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-01-01')
 # run(Strategy2, [Stock.HS300, Stock.CYB50], start='2015-05-01', end='2019-01-01')
 # run(Strategy2, [Stock.HS300, Stock.CYB50], start='2016-08-31')
 # run(Strategy2, [Stock.HS300, Stock.CYB50], start='2018-08-31')
@@ -82,7 +83,7 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 # run(StrategyNorthWithSMA, [Stock.CYB50], start='2015-01-01')
 # run(StrategyNorth, [Stock.HS300], start='2015-01-01')
 # run(StrategyNorth, [Stock.ZZ500], start='2015-01-01')
-run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500], start='2020-10-01', plot=False, printlog=False)
+run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
 run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
