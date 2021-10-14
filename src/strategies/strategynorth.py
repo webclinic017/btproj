@@ -31,6 +31,10 @@ class StrategyNorth(OneOrderStrategy):
         else:
             north_history = self.north_history[:today]
 
+        if north_history.iloc[-1]['date_raw'] != today.__str__():
+            self.log('no data for today, skip')
+            return
+
         north_value_today = north_history.iloc[-1]['value']
 
         north_history.sort_values(by=['value'], inplace=True)

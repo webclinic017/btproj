@@ -28,6 +28,7 @@ def load_stock_history(stock_code, start=None, end=None):
 
 
 def process_stock_history(df, start=None, end=None):
+    df['date_raw'] = df['date']
     df[['date']] = df[['date']].apply(pd.to_datetime)
     df.set_index(keys=['date'], inplace=True)
     if start is None and end is None:

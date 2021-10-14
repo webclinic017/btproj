@@ -69,7 +69,7 @@ for duration in durations:
     initial_cash = 1000000.0
     cerebro.broker.setcash(initial_cash)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
-    cerebro.broker.setcommission(commission=0.00002)
+    cerebro.broker.setcommission(commission=0.00025)
 
     optimized_runs = cerebro.run(maxcpus=1)
 

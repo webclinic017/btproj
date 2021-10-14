@@ -23,7 +23,7 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
-    cerebro.broker.setcommission(commission=0.00002)
+    cerebro.broker.setcommission(commission=0.00025)
 
     print('Starting Portfolio Value: %.3f' % cerebro.broker.getvalue())
     results = cerebro.run()
