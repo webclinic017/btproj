@@ -32,3 +32,4 @@ webencodings==0.5.1
 websocket-client==1.2.1
 xlrd==2.0.1
 QuantStats==0.0.34
+Flask==2.0.2
