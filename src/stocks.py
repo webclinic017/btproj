@@ -13,6 +13,7 @@ class Stock(enum.Enum):
     HS300ETF = ('HS300ETF', 'sh510310')
     CYB50ETF = ('CYB50ETF', 'sz159949')
     ZZ500ETF = ('ZZ500ETF', 'sh510500')
+    A50ETF = ('A50ETF', 'sz159602')
 
     def __init__(self, stockname: str, code: str):
         self.stockname = stockname
