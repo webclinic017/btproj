@@ -1,3 +1,4 @@
+import pathlib
 from typing import List
 
 import akshare as ak
@@ -8,7 +9,8 @@ import stocks
 
 
 def get_datafile_name(stock_code):
-    return "../data/daily/" + stock_code + "_data.csv"
+    parent = pathlib.Path(__file__).parent.parent
+    return str(parent.joinpath("data/daily/"+stock_code+"_data.csv"))
 
 
 def force_load_stock_history(stock_code):
