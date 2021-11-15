@@ -88,6 +88,7 @@ run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-
 run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
 run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
+run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 # run(StrategyNorth, [Stock.CYB50], start='2016-07-22', end='2020-07-07')
 # run(StrategyNorthWithSMA, [Stock.CYB50], start='2016-01-22', end='2018-07-07')
