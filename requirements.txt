@@ -1,4 +1,4 @@
-akshare==1.0.59
+akshare==1.2.38
 backtrader==1.9.76.123
 beautifulsoup4==4.9.3
 certifi==2021.5.30
@@ -31,5 +31,5 @@ urllib3==1.25.8
 webencodings==0.5.1
 websocket-client==1.2.1
 xlrd==2.0.1
-QuantStats==0.0.34
+QuantStats==0.0.46
 Flask==2.0.2

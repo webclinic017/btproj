@@ -32,7 +32,7 @@ class PEMarket(enum.Enum):
     SZ_A = ('SZ_A', 'sz')
     ZX = ('ZX', 'zx')
     CY = ('CY', 'cy')
-    KC = ('KC', 'kc')
+    # KC = ('KC', 'kc')
     ALL = ('All', 'all')
     HS300 = ('HS300', '000300.XSHG')
     SZ50 = ('SZ50', '000016.XSHG')

@@ -71,7 +71,7 @@ def force_load_north_single(type, indicator):
     if existing_history is None:
         history = new_history
     else:
-        history = existing_history.append(new_history).drop_duplicates(subset=['date', 'value'])
+        history = existing_history.append(new_history).drop_duplicates(subset=['date'], keep='last')
         history = history.drop(columns=['Unnamed: 0'])
         history.set_index(keys=[pd.Index(range(len(history)))], inplace=True)
 
