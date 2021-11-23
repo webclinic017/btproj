@@ -36,7 +36,7 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 
         quantstats.reports.html(
             returns,
-            output='../report/%s_%s-%s_%s.html' % (
+            output='report/%s_%s-%s_%s.html' % (
             strategy_class.__name__, start, end, "-".join(map(lambda s: s.stockname, stocks))),
             title=strategy_class.__name__)
 

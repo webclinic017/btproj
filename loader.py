@@ -9,7 +9,7 @@ import stocks
 
 
 def get_datafile_name(stock_code):
-    parent = pathlib.Path(__file__).parent.parent
+    parent = pathlib.Path(__file__).parent
     return str(parent.joinpath("data/daily/"+stock_code+"_data.csv"))
 
 

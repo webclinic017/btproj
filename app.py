@@ -12,10 +12,13 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return """<html>
+    <head>
+    <title>Daily Strategy</title>
+    </head>
     <body>
-    <a href="daily">Daily Strategy</a>
-    <br/>
-    <a href="load">Load Latest Data</a>
+    <a href="daily"><h1>Daily Strategy</h1></a>
+    <br/><br/>
+    <a href="load"><h1>Load Latest Data</h1></a>
     </body>
     </html>"""
 
@@ -38,9 +41,6 @@ def load():
 
         force_load_north()
         yield 'north loaded<br/>'
-
-        force_load_market_pe_history()
-        yield 'market PE loaded<br/>'
 
     return app.response_class(stream_with_context(generate()))
 

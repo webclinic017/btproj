@@ -1,7 +1,5 @@
 import datetime
 
-from backtrader.indicators import SmoothedMovingAverage
-
 import loader
 from strategies.one_order_strategy import OneOrderStrategy
 
