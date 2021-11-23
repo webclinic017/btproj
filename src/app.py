@@ -9,6 +9,15 @@ from strategies.strategynorth import StrategyNorth
 
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return """<html>
+    <body>
+    <a href="daily">Daily Strategy</a>
+    <br/>
+    <a href="load">Load Latest Data</a>
+    </body>
+    </html>"""
 
 @app.route("/daily")
 def daily_strategy():
@@ -16,12 +25,13 @@ def daily_strategy():
     logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01')
     logs.append('')
     logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01')
-    return "<br/>".join(logs)
+    return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
 @app.route("/load")
 def load():
     def generate():
+        yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
             force_load_stock_history(stock.code)
             yield '%s loaded<br/>' % stock.code
