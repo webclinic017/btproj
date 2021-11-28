@@ -24,10 +24,13 @@ def home():
 
 @app.route("/daily")
 def daily_strategy():
+    start_date = '2020-10-01'
     logs = []
-    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01')
+    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date)
     logs.append('')
-    logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01')
+    logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start=start_date)
+    logs.append('')
+    logs = logs + run(StrategyNorth, [Stock.A50ETF], start=start_date)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
