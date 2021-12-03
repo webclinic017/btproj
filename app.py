@@ -1,4 +1,5 @@
 import backtrader as bt
+from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context
 
 import pathlib
@@ -20,11 +21,20 @@ def home():
     <body>
     <a href="daily"><h1>Daily Strategy</h1></a>
     <br/><br/>
-    <a href="daily/1"><h1>Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF</h1></a>
+    <h1>
+    Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF
+    <a href="daily/1">Log</a> <a href="plot/1">Plot</a>
+    </h1>
     <br/><br/>
-    <a href="daily/2"><h1>StrategyNorth for CYB50ETF</h1></a>
+    <h1>
+    StrategyNorth for CYB50ETF
+    <a href="daily/2">Log</a> <a href="plot/2">Plot</a>
+    </h1>
     <br/><br/>
-    <a href="daily/3"><h1>StrategyNorth for A50ETF</h1></a>
+    <h1>
+    StrategyNorth for A50ETF
+    <a href="daily/3">Log</a> <a href="plot/3">Plot</a>
+    </h1>
     <br/><br/>
     <a href="load"><h1>Load Latest Data</h1></a>
     <br/><br/>
@@ -56,6 +66,19 @@ def daily_strategy_logs(id):
     elif id == 3:
         logs = run(StrategyNorth, [Stock.A50ETF], start=start_date, printLog=True)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
+
+
+@app.route("/plot/<int:id>")
+def daily_strategy_plot(id):
+    start_date = '2020-10-01'
+    html = 'Invalid strategy'
+    if id == 1:
+        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, printLog=True)
+    elif id == 2:
+        html = run_plot(StrategyNorth, [Stock.CYB50ETF], start=start_date, printLog=True)
+    elif id == 3:
+        html = run_plot(StrategyNorth, [Stock.A50ETF], start=start_date, printLog=True)
+    return html
 
 
 @app.route("/load")
@@ -131,3 +154,26 @@ def run(strategy, stocks, start=None, end=None, printLog=False):
     logs.append('Final Portfolio Value: %.3f' % cerebro.broker.getvalue())
 
     return logs
+
+
+def run_plot(strategy, stocks, start=None, end=None, printLog=False):
+    cerebro = bt.Cerebro()
+
+    strategy_class = strategy
+
+    cerebro.addstrategy(strategy_class, printlog=printLog)
+
+    load_stock_data(cerebro, stocks, start, end)
+
+    cerebro.broker.setcash(1000000.0)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
+    cerebro.broker.setcommission(commission=0.00025)
+
+    cerebro.run()
+
+    filename = 'plot/app.html'
+
+    b = Bokeh(style='bar', plot_mode='single', filename=filename, show=False, output_mode='save')
+    cerebro.plot(b)
+
+    return pathlib.Path(filename).read_text()
