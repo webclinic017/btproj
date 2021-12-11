@@ -10,6 +10,7 @@ class StrategyNorth(OneOrderStrategy):
         ('highpercent', 0.8),
         ('lowpercent', 0.2),
         ('maxdrawback', 0.05),
+        ('starttradedt', None),
         ('printlog', True)
     )
 
@@ -18,6 +19,10 @@ class StrategyNorth(OneOrderStrategy):
         self.north_history = loader.load_north_single('sh')
 
     def next(self):
+        if self.params.starttradedt is not None:
+            if self.datas[0].datetime.date(0).__str__() < self.params.starttradedt:
+                return
+
         if self.order:
             return
 

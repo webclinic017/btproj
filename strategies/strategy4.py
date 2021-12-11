@@ -7,6 +7,7 @@ class Strategy4(OneOrderStrategy):
         ('buyperiod', 20),
         ('sellperiod', 10),
         ('minchgpct', 1),
+        ('starttradedt', None),
         ('printlog', True)
     )
 
@@ -19,6 +20,10 @@ class Strategy4(OneOrderStrategy):
         if self.count <= max(self.params.buyperiod, self.params.sellperiod):
             self.count += 1
             return
+
+        if self.params.starttradedt is not None:
+            if self.datas[0].datetime.date(0).__str__() < self.params.starttradedt:
+                return
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:

@@ -23,17 +23,17 @@ def home():
     <br/><br/>
     <h1>
     Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF
-    <a href="daily/1">Log</a> <a href="plot/1">Plot</a>
+    <a href="log/1">Log</a> <a href="plot/1">Plot</a>
     </h1>
     <br/><br/>
     <h1>
     StrategyNorth for CYB50ETF
-    <a href="daily/2">Log</a> <a href="plot/2">Plot</a>
+    <a href="log/2">Log</a> <a href="plot/2">Plot</a>
     </h1>
     <br/><br/>
     <h1>
     StrategyNorth for A50ETF
-    <a href="daily/3">Log</a> <a href="plot/3">Plot</a>
+    <a href="log/3">Log</a> <a href="plot/3">Plot</a>
     </h1>
     <br/><br/>
     <a href="load"><h1>Load Latest Data</h1></a>
@@ -43,11 +43,12 @@ def home():
     </html>"""
 
 
-@app.route("/daily")
-def daily_strategy():
-    start_date = '2020-10-01'
+@app.route("/daily", defaults={'start_date': '2020-10-01', 'start_trade_date': None})
+@app.route('/daily/<string:start_date>', defaults={'start_trade_date': None})
+@app.route('/daily/<string:start_date>/<string:start_trade_date>')
+def daily_strategy(start_date, start_trade_date):
     logs = []
-    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date)
+    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date)
     logs.append('')
     logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start=start_date)
     logs.append('')
@@ -55,29 +56,31 @@ def daily_strategy():
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
-@app.route("/daily/<int:id>")
-def daily_strategy_logs(id):
-    start_date = '2020-10-01'
+@app.route("/log/<int:id>", defaults={'start_date': '2020-10-01', 'start_trade_date': None})
+@app.route('/log/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
+@app.route('/log/<int:id>/<string:start_date>/<string:start_trade_date>')
+def daily_strategy_logs(id, start_date, start_trade_date):
     logs = []
     if id == 1:
-        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, printLog=True)
+        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     elif id == 2:
-        logs = run(StrategyNorth, [Stock.CYB50ETF], start=start_date, printLog=True)
+        logs = run(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     elif id == 3:
-        logs = run(StrategyNorth, [Stock.A50ETF], start=start_date, printLog=True)
+        logs = run(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
-@app.route("/plot/<int:id>")
-def daily_strategy_plot(id):
-    start_date = '2020-10-01'
+@app.route("/plot/<int:id>", defaults={'start_date': '2020-10-01', 'start_trade_date': None})
+@app.route('/plot/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
+@app.route('/plot/<int:id>/<string:start_date>/<string:start_trade_date>')
+def daily_strategy_plot(id, start_date, start_trade_date):
     html = 'Invalid strategy'
     if id == 1:
-        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, printLog=True)
+        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     elif id == 2:
-        html = run_plot(StrategyNorth, [Stock.CYB50ETF], start=start_date, printLog=True)
+        html = run_plot(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     elif id == 3:
-        html = run_plot(StrategyNorth, [Stock.A50ETF], start=start_date, printLog=True)
+        html = run_plot(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     return html
 
 
@@ -133,12 +136,12 @@ def data(stock_code, rows):
     return app.response_class(stream_with_context(generate()))
 
 
-def run(strategy, stocks, start=None, end=None, printLog=False):
+def run(strategy, stocks, start=None, end=None, starttradedt=None, printLog=False):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
 
-    cerebro.addstrategy(strategy_class, printlog=printLog)
+    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
     load_stock_data(cerebro, stocks, start, end)
 
@@ -156,12 +159,12 @@ def run(strategy, stocks, start=None, end=None, printLog=False):
     return logs
 
 
-def run_plot(strategy, stocks, start=None, end=None, printLog=False):
+def run_plot(strategy, stocks, start=None, end=None, starttradedt=None, printLog=False):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
 
-    cerebro.addstrategy(strategy_class, printlog=printLog)
+    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
     load_stock_data(cerebro, stocks, start, end)
 
