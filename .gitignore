@@ -4,3 +4,5 @@
 /report/
 *.pyc
 src/.ipynb_checkpoints
+plot
+config
