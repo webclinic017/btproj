@@ -5,8 +5,9 @@ from strategies.one_order_strategy import OneOrderStrategy
 class Strategy4(OneOrderStrategy):
     params = (
         ('buyperiod', 20),
-        ('sellperiod', 10),
-        ('minchgpct', 1),
+        ('sellperiod', 20),
+        ('minchgpct', 0),
+        ('shouldbuypct', 0.7),
         ('starttradedt', None),
         ('printlog', True)
     )
@@ -43,7 +44,7 @@ class Strategy4(OneOrderStrategy):
             if self.getposition(data=data):
                 self.log("has position %d" % index)
                 has_position = True
-                should_buy = buy_best_change > 0
+                should_buy = buy_best_change > self.params.shouldbuypct / 100
                 should_sell = True
                 # if best_index == index:
                 #     should_sell = False
@@ -51,6 +52,10 @@ class Strategy4(OneOrderStrategy):
                     should_sell = False
                 if should_sell and should_buy and buy_best_index == index:
                     should_sell = False
+                if sell_changes[index] < 0:
+                    should_sell = True
+                    if buy_best_index == index:
+                        buy_best_index = None
 
                 if should_sell:
                     next_buy_index = buy_best_index
@@ -60,12 +65,12 @@ class Strategy4(OneOrderStrategy):
                     self.next_buy_index_2 = next_buy_index
         if not has_position:
             buy_index = self.next_buy_index_2
-            if buy_best_change > 0:
+            if buy_best_change > self.params.shouldbuypct / 100:
                 buy_index = buy_best_index
             if buy_index is not None:
                 if self.next_buy_index_2 is not None and self.next_buy_index_2 != buy_index:
                     self.log('next_buy_index_2 %d, buy_index %d' % (self.next_buy_index_2, buy_index))
-                self.buy_stock(buy_best_index)
+                self.buy_stock(buy_index)
 
     def calculate_changes(self, period, usecase):
         changes = []
