@@ -7,6 +7,7 @@ import stocks
 from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name
 from stocks import Stock
 from strategies.strategy4 import Strategy4
+from strategies.strategy5 import Strategy5
 from strategies.strategynorth import StrategyNorth
 
 app = Flask(__name__)
@@ -24,6 +25,11 @@ def home():
     <h1>
     Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF
     <a href="log/1">Log</a> <a href="plot/1">Plot</a>
+    </h1>
+    <br/><br/>
+    <h1>
+    Strategy5 for HS300ETF/CYB50ETF/ZZ500ETF
+    <a href="log/4">Log</a> <a href="plot/4">Plot</a>
     </h1>
     <br/><br/>
     <h1>
@@ -50,6 +56,8 @@ def daily_strategy(start_date, start_trade_date):
     logs = []
     logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date)
     logs.append('')
+    logs = logs + run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date)
+    logs.append('')
     logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start=start_date)
     logs.append('')
     logs = logs + run(StrategyNorth, [Stock.A50ETF], start=start_date)
@@ -67,6 +75,8 @@ def daily_strategy_logs(id, start_date, start_trade_date):
         logs = run(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     elif id == 3:
         logs = run(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
+    if id == 4:
+        logs = run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -81,6 +91,8 @@ def daily_strategy_plot(id, start_date, start_trade_date):
         html = run_plot(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     elif id == 3:
         html = run_plot(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
+    if id == 4:
+        html = run_plot(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     return html
 
 
@@ -141,9 +153,12 @@ def run(strategy, stocks, start=None, end=None, starttradedt=None, printLog=Fals
 
     strategy_class = strategy
 
+    if starttradedt is None:
+        starttradedt=start
+
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
-    load_stock_data(cerebro, stocks, start, end)
+    load_stock_data(cerebro, stocks, None, end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -164,9 +179,12 @@ def run_plot(strategy, stocks, start=None, end=None, starttradedt=None, printLog
 
     strategy_class = strategy
 
+    if starttradedt is None:
+        starttradedt = start
+
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
-    load_stock_data(cerebro, stocks, start, end)
+    load_stock_data(cerebro, stocks, None, end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
