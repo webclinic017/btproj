@@ -6,6 +6,7 @@ from stocks import Stock
 from loader import load_stock_data
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
+from strategies.strategy5 import Strategy5
 from strategies.strategynorth import StrategyNorth
 
 
@@ -40,8 +41,10 @@ for duration in durations:
     # cerebro.optstrategy(Strategy1, maperiod=[5, 10, 20, 60], minchgpct=range(0, 4, 1), printlog=False)
     # cerebro.optstrategy(Strategy2, buyperiod=[10, 20, 60], sellperiod=[5, 10, 20], minchgpct=range(0, 4, 1),
     #                     printlog=False)
-    cerebro.optstrategy(Strategy4, buyperiod=[10, 20, 60], sellperiod=[5, 10, 20], minchgpct=range(0, 4, 1),
-                        printlog=False)
+    # cerebro.optstrategy(Strategy4, buyperiod=[10, 20, 60], sellperiod=[5, 10, 20], minchgpct=range(0, 4, 1),
+    #                     printlog=False, starttradedt=start)
+    cerebro.optstrategy(Strategy5, buyperiod=[10, 20, 30, 60], sellperiod=[5, 10, 20, 30, 40], minchgpct=range(0, 4, 1),
+                        shouldbuypct=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], printlog=False, starttradedt=start)
     # cerebro.optstrategy(StrategyNorth, period=[60, 120, 250, 500], highpercent=[0.6, 0.7, 0.8, 0.9],
     #                     lowpercent=[0.1, 0.2, 0.3, 0.4], maxdrawback=[0.02, 0.05, 0.1, 0.2],
     #                     printlog=False)
@@ -60,7 +63,7 @@ for duration in durations:
         # [Stock.HS300ETF, Stock.CYB50ETF],
         # [Stock.CYB50ETF],
         # [Stock.CYB50],
-        start,
+        None,
         end
     )
 
@@ -94,5 +97,5 @@ for duration in durations:
 
     sort_by_sharpe = sorted(final_results_list, key=lambda x: x[1],
                             reverse=True)
-    for line in sort_by_sharpe[:5]:
+    for line in sort_by_sharpe[:10]:
         print('Param: %s, PNL Net %f, Win Rate %.2f, Max Drawdown %.2f, Profit Drawdown Rate %.2f, Sharp Ratio %f' % line)

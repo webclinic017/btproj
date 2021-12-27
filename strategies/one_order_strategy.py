@@ -11,6 +11,7 @@ class OneOrderStrategy(BaseStrategy):
         self.buy_price = None
         self.next_buy_index = None
         self.last_order_log = None
+        self.first_day = True
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -43,19 +44,19 @@ class OneOrderStrategy(BaseStrategy):
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             self.log('Order ' + order.Status[order.status])
 
-    def buy_stock(self, buy_index=0):
+    def buy_stock(self, buy_index=0, size=None):
         data = self.datas[buy_index]
-        log_txt = 'BUY CREATE %s, %.3f' % (get_data_name(data), data.close[0])
+        log_txt = 'BUY CREATE %s, %.3f, SIZE %s' % (get_data_name(data), data.close[0], str(size))
         self.log(log_txt)
-        self.order = self.buy(data, valid=Order.DAY)
+        self.order = self.buy(data, size=size, valid=Order.DAY)
         self.next_buy_index = None
         self.last_order_log = self.log_text(log_txt)
 
-    def sell_stock(self, sell_index=0, next_buy_index=None):
+    def sell_stock(self, sell_index=0, next_buy_index=None, size=None):
         data = self.datas[sell_index]
-        log_txt = 'SELL CREATE %s, %.3f, NEXT BUY %s' % (get_data_name(data), data.close[0], next_buy_index)
+        log_txt = 'SELL CREATE %s, %.3f, NEXT BUY %s, SIZE %s' % (get_data_name(data), data.close[0], next_buy_index, str(size))
         self.log(log_txt)
-        self.order = self.sell(data, valid=Order.DAY)
+        self.order = self.sell(data, size=size, valid=Order.DAY)
         self.next_buy_index = next_buy_index
         self.last_order_log = self.log_text(log_txt)
 
@@ -63,3 +64,9 @@ class OneOrderStrategy(BaseStrategy):
         BaseStrategy.stop(self)
         if self.last_order_log is not None:
             self.log('Last order: ' + self.last_order_log, doprint=True)
+
+    def check_first_day(self):
+        if self.first_day:
+            self.log('First Day', doprint=True)
+            self.first_day = False
+

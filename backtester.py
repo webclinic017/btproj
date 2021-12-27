@@ -5,6 +5,7 @@ from loader import load_stock_data
 from stocks import Stock
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
+from strategies.strategy5 import Strategy5
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
@@ -15,16 +16,17 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
     strategy_class = strategy
 
     # Add a strategy
-    cerebro.addstrategy(strategy_class, printlog=printlog)
+    cerebro.addstrategy(strategy_class, printlog=printlog, starttradedt=start)
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
-    load_stock_data(cerebro, stocks, start, end)
+    load_stock_data(cerebro, stocks, None, end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
 
+    print(str(strategy_class.__name__))
     print('Starting Portfolio Value: %.3f' % cerebro.broker.getvalue())
     results = cerebro.run()
     print('Final Portfolio Value: %.3f' % cerebro.broker.getvalue())
@@ -87,6 +89,7 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 # run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
 # run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
+run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
 run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
@@ -96,3 +99,9 @@ run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=Fals
 # run(Strategy4, [Stock.HS300, Stock.CYB50], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
 # run(Strategy2, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
 # run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
+
+
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-12-01', plot=False, printlog=False)
+# run(Strategy5, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-12-01', plot=False, printlog=False)
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2016-07-22', end="2020-07-07", plot=False, printlog=False)
+# run(Strategy5, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2016-07-22', end="2020-07-07", plot=False, printlog=False)

@@ -23,6 +23,8 @@ class StrategyNorth(OneOrderStrategy):
             if self.datas[0].datetime.date(0).__str__() < self.params.starttradedt:
                 return
 
+        self.check_first_day()
+
         if self.order:
             return
 

@@ -1,13 +1,14 @@
 from strategies.base import get_data_name
 from strategies.one_order_strategy import OneOrderStrategy
+from backtrader.indicators.sma import MovingAverageSimple
 
 
-class Strategy4(OneOrderStrategy):
+class Strategy5(OneOrderStrategy):
     params = (
-        ('buyperiod', 20),
-        ('sellperiod', 20),
+        ('buyperiod', 30),
+        ('sellperiod', 30),
         ('minchgpct', 0),
-        ('shouldbuypct', 0.7),
+        ('shouldbuypct', 0.5),
         ('starttradedt', None),
         ('printlog', True)
     )
@@ -16,12 +17,15 @@ class Strategy4(OneOrderStrategy):
         OneOrderStrategy.__init__(self)
         self.count = 0
         self.next_buy_index_2 = None
+        self.sell_sma_list = []
+        self.buy_sma_list = []
+
+        for index in range(len(self.datas)):
+            data = self.datas[index]
+            self.sell_sma_list.append(MovingAverageSimple(data, period=self.params.sellperiod))
+            self.buy_sma_list.append(MovingAverageSimple(data, period=self.params.buyperiod))
 
     def next(self):
-        if self.count <= max(self.params.buyperiod, self.params.sellperiod):
-            self.count += 1
-            return
-
         if self.params.starttradedt is not None:
             if self.datas[0].datetime.date(0).__str__() < self.params.starttradedt:
                 return
@@ -35,10 +39,10 @@ class Strategy4(OneOrderStrategy):
         if self.params.buyperiod == self.params.sellperiod:
             buy_changes, buy_best_change, buy_best_index \
                 = sell_changes, sell_best_change, sell_best_index \
-                = self.calculate_changes(self.params.buyperiod, 'BuySell')
+                = self.calculate_changes(self.buy_sma_list, self.params.buyperiod, 'BuySell')
         else:
-            buy_changes, buy_best_change, buy_best_index = self.calculate_changes(self.params.buyperiod, 'Buy')
-            sell_changes, sell_best_change, sell_best_index = self.calculate_changes(self.params.sellperiod, 'Sell')
+            buy_changes, buy_best_change, buy_best_index = self.calculate_changes(self.buy_sma_list, self.params.buyperiod, 'Buy')
+            sell_changes, sell_best_change, sell_best_index = self.calculate_changes(self.sell_sma_list, self.params.sellperiod, 'Sell')
         has_position = False
 
         for index in range(len(self.datas)):
@@ -74,7 +78,7 @@ class Strategy4(OneOrderStrategy):
                     self.log('next_buy_index_2 %d, buy_index %d' % (self.next_buy_index_2, buy_index))
                 self.buy_stock(buy_index)
 
-    def calculate_changes(self, period, usecase):
+    def calculate_changes(self, sma_list, period, usecase):
         changes = []
         logs = []
         best_index = -1
@@ -83,10 +87,10 @@ class Strategy4(OneOrderStrategy):
         for index in range(len(self.datas)):
             data = self.datas[index]
             close_now = data.close[0]
-            close_before = data.close[-period]
+            close_before = sma_list[index][0]
             change = (close_now - close_before) / close_before
             changes.append(change)
-            logs.append('%s / Period %d / CloseBefore %.3f / CloseNow %.3f / Change %.5f' % (
+            logs.append('%s / Period %d / SMA %.3f / CloseNow %.3f / Change %.5f' % (
                 get_data_name(data), period, close_before, close_now, change))
             if change > best_change:
                 best_change = change
