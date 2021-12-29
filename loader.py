@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 from typing import List
 
@@ -106,6 +107,11 @@ def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str,
         data = bt.feeds.PandasData(dataname=df)
         cerebro.adddata(data, name=stock.stockname)
 
+
+def date_ahead(date: str, days: int):
+    date_obj = datetime.datetime.fromisoformat(date)
+    date_ahead = date_obj - datetime.timedelta(days=days)
+    return str(date_ahead.date())
 
 if __name__ == '__main__':
     for stock in stocks.Stock:

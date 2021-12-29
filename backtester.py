@@ -1,7 +1,7 @@
 import backtrader as bt
 import quantstats
 
-from loader import load_stock_data
+from loader import load_stock_data, date_ahead
 from stocks import Stock
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
@@ -10,7 +10,7 @@ from strategies.strategynorth import StrategyNorth
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
 
-def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog=True):
+def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
@@ -20,7 +20,7 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
-    load_stock_data(cerebro, stocks, None, end)
+    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -73,35 +73,9 @@ def run(strategy, stocks, start=None, end=None, plot=True, report=True, printlog
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-# run(Strategy2, stocks, start, end)
-# run(StrategyNorth, stocks, start, end)
-
-
-# run(Strategy2, [Stock.HS300, Stock.CYB50], start='2015-01-01')
-# run(Strategy2, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-01-01')
-# run(Strategy2, [Stock.HS300, Stock.CYB50], start='2015-05-01', end='2019-01-01')
-# run(Strategy2, [Stock.HS300, Stock.CYB50], start='2016-08-31')
-# run(Strategy2, [Stock.HS300, Stock.CYB50], start='2018-08-31')
-# run(StrategyNorth, [Stock.CYB50], start='2015-01-01')
-# run(StrategyNorthWithSMA, [Stock.CYB50], start='2015-01-01')
-# run(StrategyNorth, [Stock.HS300], start='2015-01-01')
-# run(StrategyNorth, [Stock.ZZ500], start='2015-01-01')
-# run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
-# run(Strategy2, [Stock.HS300ETF, Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
-run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
-run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', plot=False, printlog=False)
+run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+run(Strategy4, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+run(Strategy5, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
 run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
-# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
-# run(StrategyNorth, [Stock.CYB50], start='2016-07-22', end='2020-07-07')
-# run(StrategyNorthWithSMA, [Stock.CYB50], start='2016-01-22', end='2018-07-07')
-# run(Strategy2, [Stock.HS300, Stock.CYB50], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
-# run(Strategy4, [Stock.HS300, Stock.CYB50], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
-# run(Strategy2, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
-# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-05-01', end='2019-01-01', plot=False, printlog=False)
-
-
-# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-12-01', plot=False, printlog=False)
-# run(Strategy5, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-12-01', plot=False, printlog=False)
-# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2016-07-22', end="2020-07-07", plot=False, printlog=False)
-# run(Strategy5, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2016-07-22', end="2020-07-07", plot=False, printlog=False)

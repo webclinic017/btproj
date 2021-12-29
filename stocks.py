@@ -11,6 +11,7 @@ class Stock(enum.Enum):
     CYB = ('CYB', 'sz399006')
     KC50 = ('KC50', 'sh000688')
     HS300ETF = ('HS300ETF', 'sh510310')
+    HS300ETF_2 = ('HS300ETF_2', 'sh510300')
     CYB50ETF = ('CYB50ETF', 'sz159949')
     ZZ500ETF = ('ZZ500ETF', 'sh510500')
     A50ETF = ('A50ETF', 'sz159602')
