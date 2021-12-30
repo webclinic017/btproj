@@ -3,7 +3,7 @@ import json
 import backtrader as bt
 
 from stocks import Stock
-from loader import load_stock_data
+from loader import load_stock_data, date_ahead
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
 from strategies.strategy5 import Strategy5
@@ -63,7 +63,7 @@ for duration in durations:
         # [Stock.HS300ETF, Stock.CYB50ETF],
         # [Stock.CYB50ETF],
         # [Stock.CYB50],
-        None,
+        date_ahead(start, 90),
         end
     )
 
