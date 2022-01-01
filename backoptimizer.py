@@ -43,8 +43,8 @@ for duration in durations:
     #                     printlog=False)
     # cerebro.optstrategy(Strategy4, buyperiod=[10, 20, 60], sellperiod=[5, 10, 20], minchgpct=range(0, 4, 1),
     #                     printlog=False, starttradedt=start)
-    cerebro.optstrategy(Strategy5, buyperiod=[10, 20, 30, 60], sellperiod=[5, 10, 20, 30, 40], minchgpct=range(0, 4, 1),
-                        shouldbuypct=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], printlog=False, starttradedt=start)
+    cerebro.optstrategy(Strategy5, buyperiod=[10, 20, 30, 60], sellperiod=[5, 10, 20], minchgpct=range(0, 4, 1),
+                        shouldbuypct=[0.2, 0.5, 0.7], printlog=False, starttradedt=start)
     # cerebro.optstrategy(StrategyNorth, period=[60, 120, 250, 500], highpercent=[0.6, 0.7, 0.8, 0.9],
     #                     lowpercent=[0.1, 0.2, 0.3, 0.4], maxdrawback=[0.02, 0.05, 0.1, 0.2],
     #                     printlog=False)

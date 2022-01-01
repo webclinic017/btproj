@@ -48,11 +48,10 @@ class Strategy4(OneOrderStrategy):
                 has_position = True
                 should_buy = buy_best_change > self.params.shouldbuypct / 100
                 should_sell = True
-                # if best_index == index:
-                #     should_sell = False
                 if sell_best_index != index and (sell_best_change - sell_changes[index]) < self.params.minchgpct / 100:
                     should_sell = False
-                if should_sell and should_buy and buy_best_index == index:
+                # if should_sell and should_buy and buy_best_index == index:
+                if buy_best_index == index:
                     should_sell = False
                 if sell_changes[index] < 0:
                     should_sell = True
@@ -65,6 +64,8 @@ class Strategy4(OneOrderStrategy):
                         next_buy_index = None
                     self.sell_stock(index)
                     self.next_buy_index_2 = next_buy_index
+                    if self.next_buy_index_2 is not None:
+                        self.log('next_buy %d' % (self.next_buy_index_2))
         if not has_position:
             buy_index = self.next_buy_index_2
             if buy_best_change > self.params.shouldbuypct / 100:

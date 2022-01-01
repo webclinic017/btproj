@@ -74,8 +74,8 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # stocks = [Stock.HS300, Stock.KC50]
 
 run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-run(Strategy4, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+# run(Strategy4, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
 run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-run(Strategy5, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+# run(Strategy5, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
 run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
 run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)

@@ -12,6 +12,8 @@ class BaseStrategy(bt.Strategy):
     def __init__(self):
         bt.Strategy.__init__(self)
         self.logs = []
+        self.trade_count = 0
+        self.trade_count_win = 0
 
     def log(self, txt, dt=None, doprint=False):
         """ Logging function fot this strategy"""
@@ -31,7 +33,10 @@ class BaseStrategy(bt.Strategy):
 
         self.log('OPERATION PROFIT, %s, GROSS %.3f, NET %.3f, DAYS %d' %
                  (get_data_name(trade.data), trade.pnl, trade.pnlcomm, (trade.dtclose - trade.dtopen)))
+        self.trade_count = self.trade_count + 1
+        if trade.pnlcomm >= 0:
+            self.trade_count_win = self.trade_count_win + 1
 
     def stop(self):
-        self.log('%s Ending Value %.3f' %
-                 (json.dumps(self.params.__dict__), self.broker.getvalue()), doprint=True)
+        self.log('%s Ending Value %.3f, Trades: %d, Wins: %d' %
+                 (json.dumps(self.params.__dict__), self.broker.getvalue(), self.trade_count, self.trade_count_win), doprint=True)
