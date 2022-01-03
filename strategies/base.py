@@ -14,6 +14,8 @@ class BaseStrategy(bt.Strategy):
         self.logs = []
         self.trade_count = 0
         self.trade_count_win = 0
+        self.first_day = True
+        self.first_day_closes = []
 
     def log(self, txt, dt=None, doprint=False):
         """ Logging function fot this strategy"""
@@ -40,3 +42,18 @@ class BaseStrategy(bt.Strategy):
     def stop(self):
         self.log('%s Ending Value %.3f, Trades: %d, Wins: %d' %
                  (json.dumps(self.params.__dict__), self.broker.getvalue(), self.trade_count, self.trade_count_win), doprint=True)
+        last_day_log = 'Last Day, '
+        for i in range(len(self.datas)):
+            data = self.datas[i]
+            self.first_day_closes.append(data.close[0])
+            last_day_log = last_day_log + '%s: %.3f, ' % (get_data_name(data), data.close[0] / self.first_day_closes[i])
+        self.log(last_day_log, doprint=True)
+
+    def check_first_day(self):
+        if self.first_day:
+            first_day_log = 'First Day, '
+            self.first_day = False
+            for data in self.datas:
+                self.first_day_closes.append(data.close[0])
+                first_day_log = first_day_log + '%s: %.3f, ' % (get_data_name(data), data.close[0])
+            self.log(first_day_log, doprint=True)

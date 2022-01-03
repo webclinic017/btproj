@@ -11,7 +11,6 @@ class OneOrderStrategy(BaseStrategy):
         self.buy_price = None
         self.next_buy_index = None
         self.last_order_log = None
-        self.first_day = True
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -63,10 +62,4 @@ class OneOrderStrategy(BaseStrategy):
     def stop(self):
         BaseStrategy.stop(self)
         if self.last_order_log is not None:
-            self.log('Last order: ' + self.last_order_log, doprint=True)
-
-    def check_first_day(self):
-        if self.first_day:
-            self.log('First Day', doprint=True)
-            self.first_day = False
-
+            self.log('Last Order: ' + self.last_order_log, doprint=True)

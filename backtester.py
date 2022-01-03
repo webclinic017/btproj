@@ -1,3 +1,5 @@
+import pathlib
+
 import backtrader as bt
 import quantstats
 
@@ -36,9 +38,12 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
         returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
         returns.index = returns.index.tz_convert(None)
 
+        folder = 'report'
+        pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+
         quantstats.reports.html(
             returns,
-            output='report/%s_%s-%s_%s.html' % (
+            output=folder + '/%s_%s-%s_%s.html' % (
             strategy_class.__name__, start, end, "-".join(map(lambda s: s.stockname, stocks))),
             title=strategy_class.__name__)
 

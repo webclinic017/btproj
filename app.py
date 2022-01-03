@@ -4,7 +4,7 @@ from flask import Flask, stream_with_context
 
 import pathlib
 import stocks
-from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name
+from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
 from stocks import Stock
 from strategies.strategy4 import Strategy4
 from strategies.strategy5 import Strategy5
@@ -54,9 +54,9 @@ def home():
 @app.route('/daily/<string:start_date>/<string:start_trade_date>')
 def daily_strategy(start_date, start_trade_date):
     logs = []
-    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date)
+    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date)
     logs.append('')
-    logs = logs + run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date)
+    logs = logs + run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date)
     logs.append('')
     logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start=start_date)
     logs.append('')
@@ -70,13 +70,13 @@ def daily_strategy(start_date, start_trade_date):
 def daily_strategy_logs(id, start_date, start_trade_date):
     logs = []
     if id == 1:
-        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
+        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=True)
     elif id == 2:
         logs = run(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     elif id == 3:
         logs = run(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     if id == 4:
-        logs = run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
+        logs = run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=True)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -86,13 +86,13 @@ def daily_strategy_logs(id, start_date, start_trade_date):
 def daily_strategy_plot(id, start_date, start_trade_date):
     html = 'Invalid strategy'
     if id == 1:
-        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
+        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=False)
     elif id == 2:
         html = run_plot(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     elif id == 3:
         html = run_plot(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     if id == 4:
-        html = run_plot(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
+        html = run_plot(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=False)
     return html
 
 
@@ -148,17 +148,17 @@ def data(stock_code, rows):
     return app.response_class(stream_with_context(generate()))
 
 
-def run(strategy, stocks, start=None, end=None, starttradedt=None, printLog=False):
+def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
 
     if starttradedt is None:
-        starttradedt=start
+        starttradedt = start
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
-    load_stock_data(cerebro, stocks, None, end)
+    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -174,7 +174,7 @@ def run(strategy, stocks, start=None, end=None, starttradedt=None, printLog=Fals
     return logs
 
 
-def run_plot(strategy, stocks, start=None, end=None, starttradedt=None, printLog=False):
+def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
@@ -184,7 +184,7 @@ def run_plot(strategy, stocks, start=None, end=None, starttradedt=None, printLog
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
-    load_stock_data(cerebro, stocks, None, end)
+    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -192,7 +192,9 @@ def run_plot(strategy, stocks, start=None, end=None, starttradedt=None, printLog
 
     cerebro.run()
 
-    filename = 'plot/app.html'
+    folder = 'plot'
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+    filename = folder + '/app.html'
 
     b = Bokeh(style='bar', plot_mode='single', filename=filename, show=False, output_mode='save')
     cerebro.plot(b)
