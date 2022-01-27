@@ -79,6 +79,45 @@ def force_load_north_single(type, indicator):
     history.to_csv(filename)
 
 
+def force_load_north_2():
+    force_load_north_2_single('sh', '沪股通')
+    force_load_north_2_single('sz', '深股通')
+
+
+def load_north_2_single(type, start=None, end=None):
+    filename = get_datafile_name("north_2_%s" % type)
+    try:
+        history = pd.read_csv(filename)
+    except FileNotFoundError:
+        force_load_north_2()
+        history = pd.read_csv(filename)
+    return process_stock_history(history, start, end)
+
+
+def force_load_north_2_single(type, indicator):
+    filename = get_datafile_name("north_2_%s" % type)
+    try:
+        existing_history = pd.read_csv(filename)
+    except FileNotFoundError:
+        existing_history = None
+
+    new_history = ak.stock_hsgt_hist_em(symbol=indicator)
+
+    new_history_renamed = pd.DataFrame(columns=['date', 'net_buy_vol', 'buy_vol', 'sell_vol', 'net_in'])
+    new_history_renamed[['date', 'net_buy_vol', 'buy_vol', 'sell_vol', 'net_in']] = new_history[['日期', '当日成交净买额', '买入成交额', '卖出成交额', '当日资金流入']]
+
+    new_history_renamed.sort_values(by=['date'], inplace=True)
+
+    if existing_history is None:
+        history = new_history_renamed
+    else:
+        history = existing_history.append(new_history_renamed).drop_duplicates(subset=['date'], keep='last')
+        history = history.drop(columns=['Unnamed: 0'])
+        history.set_index(keys=[pd.Index(range(len(history)))], inplace=True)
+
+    history.to_csv(filename)
+
+
 def force_load_market_pe_history():
     for market in stocks.PEMarket:
         force_load_market_pe_history_single(market.code)
@@ -113,6 +152,7 @@ def date_ahead(date: str, days: int):
     date_ahead = date_obj - datetime.timedelta(days=days)
     return str(date_ahead.date())
 
+
 if __name__ == '__main__':
     for stock in stocks.Stock:
         force_load_stock_history(stock.code)
@@ -120,6 +160,9 @@ if __name__ == '__main__':
 
     force_load_north()
     print('north loaded')
+
+    force_load_north_2()
+    print('north 2 loaded')
 
     force_load_market_pe_history()
     print('market PE loaded')
