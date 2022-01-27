@@ -67,7 +67,7 @@ def force_load_north_single(type, indicator):
     except FileNotFoundError:
         existing_history = None
 
-    new_history = ak.stock_em_hsgt_north_net_flow_in(indicator=indicator)
+    new_history = ak.stock_hsgt_north_net_flow_in_em(symbol=indicator)
 
     if existing_history is None:
         history = new_history
@@ -86,7 +86,7 @@ def force_load_market_pe_history():
 
 def force_load_market_pe_history_single(market):
     filename = get_datafile_name('market_pe_' + market)
-    history = ak.stock_a_pe(market=market)
+    history = ak.stock_a_pe(symbol=market)
     history.to_csv(filename)
     return history
 
