@@ -96,10 +96,6 @@ def load_north_2_single(type, start=None, end=None):
 
 def force_load_north_2_single(type, indicator):
     filename = get_datafile_name("north_2_%s" % type)
-    try:
-        existing_history = pd.read_csv(filename)
-    except FileNotFoundError:
-        existing_history = None
 
     new_history = ak.stock_hsgt_hist_em(symbol=indicator)
 
@@ -108,14 +104,9 @@ def force_load_north_2_single(type, indicator):
 
     new_history_renamed.sort_values(by=['date'], inplace=True)
 
-    if existing_history is None:
-        history = new_history_renamed
-    else:
-        history = existing_history.append(new_history_renamed).drop_duplicates(subset=['date'], keep='last')
-        history = history.drop(columns=['Unnamed: 0'])
-        history.set_index(keys=[pd.Index(range(len(history)))], inplace=True)
+    new_history_renamed.set_index(keys=[pd.Index(range(len(new_history_renamed)))], inplace=True)
 
-    history.to_csv(filename)
+    new_history_renamed.to_csv(filename)
 
 
 def force_load_market_pe_history():
