@@ -7,7 +7,7 @@ from strategies.one_order_strategy import OneOrderStrategy
 class StrategyNorth2(OneOrderStrategy):
     params = (
         ('period', 500),
-        ('highpercent', 0.7),
+        ('highpercent', 0.6),
         ('lowpercent', 0.3),
         ('maxdrawback', 0.05),
         ('starttradedt', None),
@@ -42,10 +42,12 @@ class StrategyNorth2(OneOrderStrategy):
 
         north_value_today = north_history.iloc[-1]['net_buy_vol']
 
-        north_history.sort_values(by=['net_buy_vol'], inplace=True)
         history_len = len(north_history)
+        north_history.sort_values(by=['net_buy_vol'], inplace=True)
         north_value_low = north_history.iloc[int(history_len * self.params.lowpercent)]['net_buy_vol']
-        north_value_high = north_history.iloc[int(history_len * self.params.highpercent)]['net_buy_vol']
+
+        north_history.sort_values(by=['net_in'], inplace=True)
+        north_value_high = north_history.iloc[int(history_len * self.params.highpercent)]['net_in']
 
         has_position = True if self.getposition() else False
         self.log('%s / Today %.3f / Low %.3f / High %.5f' % (
