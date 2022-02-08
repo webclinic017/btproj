@@ -6,6 +6,7 @@ from strategies.one_order_strategy import OneOrderStrategy
 
 class StrategyNorth(OneOrderStrategy):
     params = (
+        ('market', 'sh'),
         ('period', 500),
         ('highpercent', 0.8),
         ('lowpercent', 0.2),
@@ -16,7 +17,7 @@ class StrategyNorth(OneOrderStrategy):
 
     def __init__(self):
         OneOrderStrategy.__init__(self)
-        self.north_history = loader.load_north_single('sh')
+        self.north_history = loader.load_north_single(self.params.market)
 
     def next(self):
         if self.params.starttradedt is not None:

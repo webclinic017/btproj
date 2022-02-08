@@ -13,13 +13,13 @@ from strategies.strategynorth2 import StrategyNorth2
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True):
+def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, **kwargs):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
 
     # Add a strategy
-    cerebro.addstrategy(strategy_class, printlog=printlog, starttradedt=start)
+    cerebro.addstrategy(strategy_class, printlog=printlog, starttradedt=start, **kwargs)
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
@@ -42,10 +42,13 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
         folder = 'report'
         pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
 
+        filename = '%s_%s-%s_%s' % (strategy_class.__name__, start, end, "-".join(map(lambda s: s.stockname, stocks)))
+        for k, v in kwargs.items():
+            filename += '_%s=%s' % (k, v)
+
         quantstats.reports.html(
             returns,
-            output=folder + '/%s_%s-%s_%s.html' % (
-            strategy_class.__name__, start, end, "-".join(map(lambda s: s.stockname, stocks))),
+            output='%s/%s.html' % (folder, filename),
             title=strategy_class.__name__)
 
     if plot:
@@ -83,7 +86,11 @@ run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-
 # run(Strategy4, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
 # run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
 # run(Strategy5, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
-run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
-run(StrategyNorth2, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
-run(StrategyNorth2, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
+run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
+run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.CYB50ETF], start='2018-10-01', plot=False, printlog=False, market='sz')
+# run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='sz')
+# run(StrategyNorth, [Stock.CYB50ETF], start='2018-10-01', plot=False, printlog=False, market='all')
+# run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='all')
+# run(StrategyNorth2, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
+# run(StrategyNorth2, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
