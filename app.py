@@ -5,6 +5,7 @@ from flask import Flask, stream_with_context
 import pathlib
 import stocks
 from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
+from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
 from strategies.strategy5 import Strategy5
@@ -189,6 +190,8 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
+
+    cerebro.addobservermulti(RelativeValue, starttradedt=starttradedt)
 
     cerebro.run()
 

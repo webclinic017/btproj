@@ -132,10 +132,13 @@ def load_market_pe_single(market, start=None, end=None):
 
 
 def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str):
+    datas = []
     for stock in stocks:
         df = load_stock_history(stock.code, start, end)
         data = bt.feeds.PandasData(dataname=df)
         cerebro.adddata(data, name=stock.stockname)
+        datas.append(data)
+    return datas
 
 
 def date_ahead(date: str, days: int):

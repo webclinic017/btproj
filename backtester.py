@@ -4,12 +4,14 @@ import backtrader as bt
 import quantstats
 
 from loader import load_stock_data, date_ahead
+from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
 from strategies.strategy5 import Strategy5
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorth2 import StrategyNorth2
+from strategies.strategynorth3 import StrategyNorth3
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
 
@@ -23,11 +25,13 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
-    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
+
+    cerebro.addobservermulti(RelativeValue, starttradedt=start)
 
     print(str(strategy_class.__name__))
     print('Starting Portfolio Value: %.3f' % cerebro.broker.getvalue())
@@ -82,15 +86,10 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-# run(Strategy4, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-# run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-# run(Strategy5, [Stock.HS300ETF_2, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
-run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
-# run(StrategyNorth, [Stock.CYB50ETF], start='2018-10-01', plot=False, printlog=False, market='sz')
-# run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='sz')
-# run(StrategyNorth, [Stock.CYB50ETF], start='2018-10-01', plot=False, printlog=False, market='all')
-# run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='all')
-# run(StrategyNorth2, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False)
-# run(StrategyNorth2, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False)
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+# run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
+
+run(StrategyNorth, [Stock.CYB50], start='2022-01-01', plot=True, printlog=False, market='sh')
+run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2022-01-01', data_start=60, plot=True, printlog=False)
+# run(Strategy5, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2020-12-01', data_start=60, plot=False, printlog=False)

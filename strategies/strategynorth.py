@@ -4,6 +4,7 @@ import loader
 from strategies.one_order_strategy import OneOrderStrategy
 
 
+# 一阶段StrategyNorth
 class StrategyNorth(OneOrderStrategy):
     params = (
         ('market', 'sh'),
