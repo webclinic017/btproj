@@ -16,6 +16,23 @@ class Stock(enum.Enum):
     ZZ500ETF = ('ZZ500ETF', 'sh510500')
     A50ETF = ('A50ETF', 'sz159602')
 
+    ZGHLWETF = ('ZGHLWETF', 'sh513050')
+    ZQETF = ('ZQETF', 'sh512880')
+    QSETF = ('QSETF', 'sh512000')
+    HJETF = ('HJETF', 'sh518880')
+    JETF = ('JETF', 'sh512690')
+    XNYCETF = ('XNYCETF', 'sh515030')
+    NZETF = ('NZETF', 'sh513100')
+    YHETF = ('YHETF', 'sh512800')
+    XPETF = ('XPETF', 'sz159995')
+    BDTETF = ('BDTETF', 'sh512480')
+    YYETF = ('YYETF', 'sh512010')
+    KZZETF = ('KZZETF', 'sh511380')
+    JGETF = ('JGETF', 'sh512660')
+
+
+
+
     def __init__(self, stockname: str, code: str):
         self.stockname = stockname
         self.code = code

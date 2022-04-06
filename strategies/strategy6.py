@@ -1,14 +1,14 @@
-from backtrader.indicators import AdaptiveMovingAverage
+from backtrader.indicators import AdaptiveMovingAverage, Highest, Lowest
 
 from strategies.base import get_data_name
 from strategies.one_order_strategy import OneOrderStrategy
 from backtrader.indicators.sma import MovingAverageSimple
 
 
-class Strategy5(OneOrderStrategy):
+class Strategy6(OneOrderStrategy):
     params = (
-        ('buyperiod', 50),
-        ('sellperiod', 50),
+        ('buyperiod', 20),
+        ('sellperiod', 20),
         ('minchgpct', 0),
         ('shouldbuypct', 0.2),
         ('starttradedt', None),
@@ -26,8 +26,8 @@ class Strategy5(OneOrderStrategy):
             data = self.datas[index]
             # self.sell_sma_list.append(MovingAverageSimple(data, period=self.params.sellperiod))
             # self.buy_sma_list.append(MovingAverageSimple(data, period=self.params.buyperiod))
-            self.sell_sma_list.append(AdaptiveMovingAverage(data, slow=self.params.sellperiod))
-            self.buy_sma_list.append(AdaptiveMovingAverage(data, slow=self.params.buyperiod))
+            self.sell_sma_list.append(Lowest(data, period=self.params.sellperiod))
+            self.buy_sma_list.append(Lowest(data, period=self.params.buyperiod))
 
     def next(self):
         if self.params.starttradedt is not None:

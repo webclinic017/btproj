@@ -11,6 +11,19 @@ class OneOrderStrategy(BaseStrategy):
         self.buy_price = None
         self.next_buy_index = None
         self.last_order_log = None
+        self.in_market_days = 0
+
+    def next(self):
+        in_market = False
+        for index in range(len(self.datas)):
+            data = self.datas[index]
+            if self.getposition(data=data):
+                in_market = True
+                break
+        if in_market:
+            self.in_market_days = self.in_market_days + 1
+        else:
+            self.in_market_days = 0
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:

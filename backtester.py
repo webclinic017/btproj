@@ -9,13 +9,17 @@ from stocks import Stock
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
 from strategies.strategy5 import Strategy5
+from strategies.strategy6 import Strategy6
+from strategies.strategydonatr import StrategyDonAtr
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorth2 import StrategyNorth2
 from strategies.strategynorth3 import StrategyNorth3
+from strategies.strategynorth4 import StrategyNorth4
+from strategies.strategynorth5 import StrategyNorth5
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, **kwargs):
+def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, benchmark=False, **kwargs):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
@@ -32,6 +36,10 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
     cerebro.broker.setcommission(commission=0.00025)
 
     cerebro.addobservermulti(RelativeValue, starttradedt=start)
+
+    if benchmark:
+        for data in datas:
+            cerebro.addobserver(bt.observers.Benchmark, data=data, timeframe=bt.TimeFrame.Days)
 
     print(str(strategy_class.__name__))
     print('Starting Portfolio Value: %.3f' % cerebro.broker.getvalue())
@@ -86,10 +94,48 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-# run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
-# run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', plot=False, printlog=False, market='sh')
+run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
+run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorthWithSMA, [Stock.A50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
 
-run(StrategyNorth, [Stock.CYB50], start='2022-01-01', plot=True, printlog=False, market='sh')
-run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2022-01-01', data_start=60, plot=True, printlog=False)
+# run(StrategyNorth5, [Stock.CYB50ETF], start='2020-03-20', data_start=365, plot=True, printlog=False, market='sh')
+
+# run(StrategyNorth, [Stock.CYB50], start='2022-01-01', plot=True, printlog=False, market='sh')
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2022-01-01', data_start=60, plot=True, printlog=False)
 # run(Strategy5, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2020-12-01', data_start=60, plot=False, printlog=False)
+
+# run(StrategyNorth, [Stock.CYB50ETF], start='2018-01-01', end="2018-12-31", data_start=60, plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.CYB50ETF], start='2018-01-01', end="2018-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=250, highpercent=0.9, lowpercent=0.1, maxdrawback=0.02)
+#
+# run(StrategyNorth, [Stock.CYB50ETF], start='2019-01-01', end="2019-12-31", data_start=60, plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.CYB50ETF], start='2019-01-01', end="2019-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=60, highpercent=0.8, lowpercent=0.4, maxdrawback=0.02)
+# run(StrategyNorth, [Stock.CYB50ETF], start='2019-01-01', end="2019-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=60, highpercent=0.8, lowpercent=0.4, maxdrawback=0.05)
+#
+# run(StrategyNorth, [Stock.CYB50ETF], start='2020-01-01', end="2020-12-31", data_start=60, plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.CYB50ETF], start='2020-01-01', end="2020-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=120, highpercent=0.6, lowpercent=0.3, maxdrawback=0.05)
+# run(StrategyNorth, [Stock.CYB50ETF], start='2020-01-01', end="2020-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=60, highpercent=0.8, lowpercent=0.4, maxdrawback=0.05)
+#
+# run(StrategyNorth, [Stock.CYB50ETF], start='2021-01-01', end="2021-12-31", data_start=60, plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.CYB50ETF], start='2021-01-01', end="2021-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=120, highpercent=0.6, lowpercent=0.1, maxdrawback=0.05)
+# run(StrategyNorth, [Stock.CYB50ETF], start='2021-01-01', end="2021-12-31", data_start=60, plot=False, printlog=False, market='sh',
+#     period=500, highpercent=0.7, lowpercent=0.4, maxdrawback=0.05)
+
+
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-01-01', end="2022-12-31", data_start=60, plot=True, printlog=True)
+# run(StrategyNorth, [Stock.CYB50ETF], start='2022-01-01', end="2022-12-31", plot=True, printlog=False, market='sh')
+# run(Strategy4, [Stock.ZGHLWETF, Stock.ZQETF, Stock.QSETF, Stock.HJETF, Stock.XNYCETF, Stock.YHETF, Stock.XPETF, Stock.JGETF],
+#     start='2020-06-01', end="2020-12-31", buyperiod=10, sellperiod=10, shouldbuypct=0, minchgpct = 0, data_start=60, plot=True, printlog=False)
+
+# run(StrategyDonAtr, [Stock.HS300ETF], start='2017-06-01', end="2021-12-31", data_start=365, plot=True, printlog=False)
+# start, end = '2017-10-01', '2023-10-01'
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start, end=end, data_start=365, plot=False, printlog=False)
+# run(StrategyNorth, [Stock.CYB50ETF], start=start, end=end, data_start=365, plot=True, printlog=False, market='sh')
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start=start, end=end, data_start=365, plot=False, printlog=False, market='sh')

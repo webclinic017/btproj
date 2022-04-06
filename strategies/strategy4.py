@@ -1,3 +1,6 @@
+from backtrader.indicators import MovingAverageSimple, AdaptiveMovingAverage
+
+from indicators.DonChainChannels import DonChainChannels
 from strategies.base import get_data_name
 from strategies.one_order_strategy import OneOrderStrategy
 
@@ -17,11 +20,14 @@ class Strategy4(OneOrderStrategy):
         self.count = 0
         self.next_buy_index_2 = None
 
-    def next(self):
-        if self.count <= max(self.params.buyperiod, self.params.sellperiod):
-            self.count += 1
-            return
+        self.sma_list = []
+        self.ama_list = []
+        for index in range(len(self.datas)):
+            data = self.datas[index]
+            self.sma_list.append(MovingAverageSimple(data, period=self.params.sellperiod))
+            self.ama_list.append(AdaptiveMovingAverage(data, slow=self.params.sellperiod))
 
+    def next(self):
         if self.params.starttradedt is not None:
             if self.datas[0].datetime.date(0).__str__() < self.params.starttradedt:
                 return
