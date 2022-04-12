@@ -1,4 +1,5 @@
 import backtrader as bt
+from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context
 
@@ -173,7 +174,7 @@ def data(stock_code, rows):
 
 
 def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False):
-    cerebro = bt.Cerebro()
+    cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
 
@@ -182,13 +183,19 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
 
-    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
 
-    cerebro.addobservermulti(RelativeValue, starttradedt=starttradedt)
+    cerebro.addobserver(Broker)
+    cerebro.addobservermulti(BuySell, bardist=0)
+    cerebro.addobservermulti(RelativeValue, starttradedt=start)
+    if len(datas) == 1:
+        cerebro.addobserver(Trades)
+    else:
+        cerebro.addobserver(DataTrades)
 
     logs = [str(strategy_class.__name__), 'Starting Portfolio Value: %.3f' % cerebro.broker.getvalue()]
 

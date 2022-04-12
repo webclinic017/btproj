@@ -38,12 +38,12 @@ class StrategyNorthWithSMA(OneOrderStrategy):
 
         if self.data.close[0] >= self.data.close[-self.params.smaperiod]:
             self.do_next(self.params.periodbull, self.params.highpercentbull, self.params.lowpercentbull,
-                         self.params.maxdrawbackbull)
+                         self.params.maxdrawbackbull, 'bull')
         else:
             self.do_next(self.params.periodbear, self.params.highpercentbear, self.params.lowpercentbear,
-                         self.params.maxdrawbackbear)
+                         self.params.maxdrawbackbear, 'bear')
 
-    def do_next(self, period, highp, lowp, maxd):
+    def do_next(self, period, highp, lowp, maxd, trend):
         # north_history = self.north_history['2016-12-05':self.datas[0].datetime.date()]
         today = self.datas[0].datetime.date()
         if period > 0:
@@ -60,8 +60,8 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         north_value_high = north_history.iloc[int(history_len * highp)]['value']
 
         has_position = True if self.getposition() else False
-        self.log('%s / Today %.3f / Low %.3f / High %.5f' % (
-            has_position, north_value_today, north_value_low, north_value_high))
+        self.log('%s / Today %.3f / Low %.3f / High %.5f / Trend %s' % (
+            has_position, north_value_today, north_value_low, north_value_high, trend))
 
         # if has_position:
         #     if north_value_today < north_value_low and self.macd.lines.macd < self.macd.lines.signal:

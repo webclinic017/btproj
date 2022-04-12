@@ -2,6 +2,7 @@ import pathlib
 
 import backtrader as bt
 import quantstats
+from backtrader.observers import BuySell, Broker, Trades, DataTrades
 
 from loader import load_stock_data, date_ahead
 from oberservers.RelativeValue import RelativeValue
@@ -20,7 +21,7 @@ from strategies.strategynorthsma import StrategyNorthWithSMA
 
 
 def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, benchmark=False, **kwargs):
-    cerebro = bt.Cerebro()
+    cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
 
@@ -35,7 +36,13 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
 
+    cerebro.addobserver(Broker)
+    cerebro.addobservermulti(BuySell, bardist=0)
     cerebro.addobservermulti(RelativeValue, starttradedt=start)
+    if len(datas) == 1:
+        cerebro.addobserver(Trades)
+    else:
+        cerebro.addobserver(DataTrades)
 
     if benchmark:
         for data in datas:
