@@ -52,7 +52,13 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         else:
             north_history = self.north_history[:today]
 
-        north_value_today = north_history.iloc[-1]['value']
+        no_north_today = False
+        north_history_today = north_history.iloc[-1]['date_raw']
+        if north_history_today == today.__str__():
+            north_value_today = north_history.iloc[-1]['value']
+        else:
+            no_north_today = True
+            north_value_today = 0
 
         north_history.sort_values(by=['value'], inplace=True)
         history_len = len(north_history)
@@ -60,8 +66,8 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         north_value_high = north_history.iloc[int(history_len * highp)]['value']
 
         has_position = True if self.getposition() else False
-        self.log('%s / Today %.3f / Low %.3f / High %.5f / Trend %s' % (
-            has_position, north_value_today, north_value_low, north_value_high, trend))
+        self.log('%s / Data %.3f / Today %.3f / Low %.3f / High %.5f / Trend %s' % (
+            has_position, self.data.close[0], north_value_today, north_value_low, north_value_high, trend))
 
         # if has_position:
         #     if north_value_today < north_value_low and self.macd.lines.macd < self.macd.lines.signal:
@@ -73,8 +79,12 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         if has_position:
             if north_value_today < north_value_low or self.data.close[0] < self.buy_price * (
                     1 - maxd):
+                if no_north_today:
+                    self.log('no north today sell')
                 # if north_value_today < north_value_low:
                 self.sell_stock()
         else:
             if north_value_today > north_value_high:
+                if no_north_today:
+                    self.log('no north today buy')
                 self.buy_stock()
