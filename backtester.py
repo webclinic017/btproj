@@ -83,7 +83,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # start, end = '2018-01-01', '2021-08-13'
 # start, end = '2017-12-01', None
 # start, end = '2015-12-01', None
-# start, end = '2020-10-01', None
+# start, end = '2021-08-25', None
 # start, end = '2020-01-01', None   #科创板开始到现在
 # start, end = '2021-02-10', None
 # start, end = '2018-01-22', '2020-06-30'   #HS300EFT 一次下探恢复
@@ -101,11 +101,11 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2020-10-01', data_start=60, plot=False, printlog=False)
-run(StrategyNorth, [Stock.CYB50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
-run(StrategyNorth, [Stock.A50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
-run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
-run(StrategyNorthWithSMA, [Stock.A50ETF], start='2020-10-01', data_start=60, plot=False, printlog=False, market='sh')
+run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False)
+run(StrategyNorth, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
 
 # run(StrategyNorth5, [Stock.CYB50ETF], start='2020-03-20', data_start=365, plot=True, printlog=False, market='sh')
 

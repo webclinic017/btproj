@@ -62,7 +62,7 @@ def home():
     </html>"""
 
 
-@app.route("/daily", defaults={'start_date': '2020-10-01', 'start_trade_date': None})
+@app.route("/daily", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
 @app.route('/daily/<string:start_date>', defaults={'start_trade_date': None})
 @app.route('/daily/<string:start_date>/<string:start_trade_date>')
 def daily_strategy(start_date, start_trade_date):
@@ -81,7 +81,7 @@ def daily_strategy(start_date, start_trade_date):
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
-@app.route("/log/<int:id>", defaults={'start_date': '2020-10-01', 'start_trade_date': None})
+@app.route("/log/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
 @app.route('/log/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
 @app.route('/log/<int:id>/<string:start_date>/<string:start_trade_date>')
 def daily_strategy_logs(id, start_date, start_trade_date):
@@ -101,7 +101,7 @@ def daily_strategy_logs(id, start_date, start_trade_date):
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
-@app.route("/plot/<int:id>", defaults={'start_date': '2020-10-01', 'start_trade_date': None})
+@app.route("/plot/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
 @app.route('/plot/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
 @app.route('/plot/<int:id>/<string:start_date>/<string:start_trade_date>')
 def daily_strategy_plot(id, start_date, start_trade_date):
