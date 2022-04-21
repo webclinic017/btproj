@@ -19,6 +19,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         ('maxdrawbackbear', 0.1),
         ('smaperiod', 20),
         ('starttradedt', None),
+        ('mode', 2),
         ('printlog', True)
     )
 
@@ -53,12 +54,15 @@ class StrategyNorthWithSMA(OneOrderStrategy):
             north_history = self.north_history[:today]
 
         no_north_today = False
-        north_history_today = north_history.iloc[-1]['date_raw']
-        if north_history_today == today.__str__():
+        if self.p.mode == 1:
             north_value_today = north_history.iloc[-1]['value']
         else:
-            no_north_today = True
-            north_value_today = 0
+            north_history_today = north_history.iloc[-1]['date_raw']
+            if north_history_today == today.__str__():
+                north_value_today = north_history.iloc[-1]['value']
+            else:
+                no_north_today = True
+                north_value_today = 0
 
         north_history.sort_values(by=['value'], inplace=True)
         history_len = len(north_history)
