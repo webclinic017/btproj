@@ -126,11 +126,14 @@ def load():
     def generate():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
-            force_load_stock_history(stock.code)
-            yield '%s loaded<br/>' % stock.code
+            history = force_load_stock_history(stock.code)
+            yield '%s %s loaded<br/>' % (stock.code, str(history.iloc[-1]['date']))
 
-        force_load_north()
-        yield 'north loaded<br/>'
+        north_results = force_load_north()
+        for north_result in north_results:
+            north_item = north_result[0]
+            history = north_result[1]
+            yield '%s %s loaded<br/>' % (north_item[1], str(history.iloc[-1]['date']))
 
     return app.response_class(stream_with_context(generate()))
 

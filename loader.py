@@ -45,9 +45,11 @@ def process_stock_history(df, start=None, end=None):
 
 
 def force_load_north():
-    force_load_north_single('all', '北上')
-    force_load_north_single('sh', '沪股通')
-    force_load_north_single('sz', '深股通')
+    result = []
+    for item in [('all', '北上'), ('sh', '沪股通'), ('sz', '深股通')]:
+        history = force_load_north_single(item[0], item[1])
+        result.append((item, history))
+    return result
 
 
 def load_north_single(type, start=None, end=None):
@@ -77,6 +79,8 @@ def force_load_north_single(type, indicator):
         history.set_index(keys=[pd.Index(range(len(history)))], inplace=True)
 
     history.to_csv(filename)
+
+    return history
 
 
 def force_load_north_2():
@@ -149,11 +153,14 @@ def date_ahead(date: str, days: int):
 
 if __name__ == '__main__':
     for stock in stocks.Stock:
-        force_load_stock_history(stock.code)
-        print('%s loaded' % stock.code)
+        history = force_load_stock_history(stock.code)
+        print('%s %s loaded' % (stock.code, str(history.iloc[-1]['date'])))
 
-    force_load_north()
-    print('north loaded')
+    north_results = force_load_north()
+    for north_result in north_results:
+        north_item = north_result[0]
+        history = north_result[1]
+        print('%s %s loaded' % (north_item[1], str(history.iloc[-1]['date'])))
 
     force_load_north_2()
     print('north 2 loaded')
