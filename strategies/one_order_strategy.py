@@ -11,6 +11,7 @@ class OneOrderStrategy(BaseStrategy):
         self.buy_price = None
         self.next_buy_index = None
         self.last_order_log = None
+        self.last_next_log = None
         self.in_market_days = 0
 
     def next(self):
@@ -76,3 +77,5 @@ class OneOrderStrategy(BaseStrategy):
         BaseStrategy.stop(self)
         if self.last_order_log is not None:
             self.log('Last Order: ' + self.last_order_log, doprint=True)
+        if self.last_next_log is not None:
+            self.log('Last Log: ' + self.last_next_log, doprint=True)

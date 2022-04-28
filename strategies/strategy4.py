@@ -99,7 +99,9 @@ class Strategy4(OneOrderStrategy):
                 best_change = change
                 best_index = index
         logs.append('Best Index: %d' % best_index)
-        self.log(", ".join(logs))
+        next_log = ", ".join(logs)
+        self.last_next_log = next_log
+        self.log(next_log)
         return changes, best_change, best_index
 
     def buy_stock(self, buy_index=0):

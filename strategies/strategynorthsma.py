@@ -1,6 +1,6 @@
 import datetime
 
-from backtrader.indicators import SmoothedMovingAverage
+from backtrader.indicators import SmoothedMovingAverage, RelativeStrengthIndex
 
 import loader
 from strategies.one_order_strategy import OneOrderStrategy
@@ -26,6 +26,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
     def __init__(self):
         OneOrderStrategy.__init__(self)
         self.north_history = loader.load_north_single(self.params.market)
+        self.rsi = RelativeStrengthIndex(upperband=80, lowerband=25)
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -70,8 +71,13 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         north_value_high = north_history.iloc[int(history_len * highp)]['value']
 
         has_position = True if self.getposition() else False
-        self.log('%s / Data %.3f / Today %.3f / Low %.3f / High %.5f / Trend %s' % (
-            has_position, self.data.close[0], north_value_today, north_value_low, north_value_high, trend))
+
+        rsi = self.rsi[0]
+
+        next_log = '%s / Data %.3f / Today %.3f / Low %.3f / High %.5f / RSI %.3f / Trend %s' % (
+            has_position, self.data.close[0], north_value_today, north_value_low, north_value_high, rsi, trend)
+        self.last_next_log = next_log
+        self.log(next_log)
 
         # if has_position:
         #     if north_value_today < north_value_low and self.macd.lines.macd < self.macd.lines.signal:
