@@ -102,11 +102,11 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False)
+run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
 # run(StrategyNorth, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
 # run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
-run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=True, printlog=False, market='sh', mode=2)
-run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=2)
+run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
+run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=True, market='sh', mode=1)
 # run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=1)
 
@@ -150,5 +150,24 @@ run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plo
 # run(StrategyNorth, [Stock.CYB50ETF], start=start, end=end, data_start=365, plot=True, printlog=False, market='sh')
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start=start, end=end, data_start=365, plot=False, printlog=False, market='sh')
 
-# run(Strategy0, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=True)
-# run(Strategy0, [Stock.HS300], start='2003-01-01', data_start=60, plot=False, printlog=True)
+# run(Strategy0, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=True, rsilevel=25)
+# run(Strategy0, [Stock.HS300ETF], start='2014-01-01', data_start=60, plot=False, printlog=True, rsilevel=30)
+# run(Strategy0, [Stock.ZZ500ETF], start='2014-01-01', data_start=60, plot=False, printlog=True, rsilevel=24)
+
+
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh', mode=1)
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh', mode=2)
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh', mode=3)
+
+# run(StrategyNorthWithSMA, [Stock.A50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh', mode=2)
+# run(StrategyNorthWithSMA, [Stock.A50ETF], start='2017-01-01', data_start=60, plot=False, printlog=True, market='sh', mode=3)
+
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, mode=1, rsi=((30, 5), (25, 5), (24, 5)))
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, mode=3, rsi=((30, 5), (25, 5), (24, 5)))
+
+# run(StrategyNorth, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh')
+
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2014-10-01', data_start=60, plot=False, printlog=False, mode=1, rsi=((30, 5), (25, 5), (24, 5)))
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2014-10-01', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2014-10-01', data_start=60, plot=False, printlog=False, mode=3, rsi=((30, 5), (25, 5), (24, 5)))

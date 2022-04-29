@@ -1,8 +1,11 @@
-from backtrader.indicators import MovingAverageSimple, AdaptiveMovingAverage
+from backtrader.indicators import MovingAverageSimple, AdaptiveMovingAverage, RelativeStrengthIndex
 
-from indicators.DonChainChannels import DonChainChannels
 from strategies.base import get_data_name
 from strategies.one_order_strategy import OneOrderStrategy
+
+
+REASON_MAIN = 1
+REASON_SUPERLOW = 2
 
 
 class Strategy4(OneOrderStrategy):
@@ -12,6 +15,8 @@ class Strategy4(OneOrderStrategy):
         ('minchgpct', 0),
         ('shouldbuypct', 0.7),
         ('starttradedt', None),
+        ('mode', 2),
+        ('rsi', None),
         ('printlog', True)
     )
 
@@ -20,12 +25,19 @@ class Strategy4(OneOrderStrategy):
         self.count = 0
         self.next_buy_index_2 = None
 
+        if type(self.params.rsi) is str:
+            self.rsi_param = eval(self.params.rsi)
+        else:
+            self.rsi_param = self.params.rsi
+
         self.sma_list = []
         self.ama_list = []
+        self.rsi_list = []
         for index in range(len(self.datas)):
             data = self.datas[index]
             self.sma_list.append(MovingAverageSimple(data, period=self.params.sellperiod))
             self.ama_list.append(AdaptiveMovingAverage(data, slow=self.params.sellperiod))
+            self.rsi_list.append(RelativeStrengthIndex(data, lowerband=self.rsi_param[index][0]))
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -33,6 +45,8 @@ class Strategy4(OneOrderStrategy):
                 return
 
         self.check_first_day()
+
+        OneOrderStrategy.next(self)
 
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
@@ -45,13 +59,15 @@ class Strategy4(OneOrderStrategy):
         else:
             buy_changes, buy_best_change, buy_best_index = self.calculate_changes(self.params.buyperiod, 'Buy')
             sell_changes, sell_best_change, sell_best_index = self.calculate_changes(self.params.sellperiod, 'Sell')
-        has_position = False
+
+        current_position = -1
+        has_operation = False
 
         for index in range(len(self.datas)):
             data = self.datas[index]
             if self.getposition(data=data):
                 self.log("has position %d" % index)
-                has_position = True
+                current_position = index
                 should_buy = buy_best_change > self.params.shouldbuypct / 100
                 should_sell = True
                 if sell_best_index != index and (sell_best_change - sell_changes[index]) < self.params.minchgpct / 100:
@@ -63,38 +79,53 @@ class Strategy4(OneOrderStrategy):
                     should_sell = True
                     if buy_best_index == index:
                         buy_best_index = None
+                if self.buy_reason == REASON_SUPERLOW:
+                    should_sell = False
 
                 if should_sell:
                     next_buy_index = buy_best_index
                     if not should_buy:
                         next_buy_index = None
-                    self.sell_stock(index)
+                    self.sell_stock(index, sell_reason=REASON_MAIN)
+                    has_operation=True
                     self.next_buy_index_2 = next_buy_index
                     if self.next_buy_index_2 is not None:
                         self.log('next_buy %d' % (self.next_buy_index_2))
-        if not has_position:
+        if current_position == -1:
             buy_index = self.next_buy_index_2
             if buy_best_change > self.params.shouldbuypct / 100:
                 buy_index = buy_best_index
             if buy_index is not None:
                 if self.next_buy_index_2 is not None and self.next_buy_index_2 != buy_index:
                     self.log('next_buy_index_2 %d, buy_index %d' % (self.next_buy_index_2, buy_index))
-                self.buy_stock(buy_index)
+                self.buy_stock(buy_index, buy_reason=REASON_MAIN)
+                has_operation=True
+
+        if self.p.mode == 2 or self.p.mode == 3:
+            if not has_operation:
+                if current_position == -1:
+                    buy_index = self.calculate_rsi()
+                    if buy_index is not None:
+                        self.buy_stock(buy_index, buy_reason=REASON_SUPERLOW)
+                else:
+                    if self.buy_reason == REASON_SUPERLOW and self.in_market_days >= self.rsi_param[current_position][1]:
+                        self.sell_stock(current_position, sell_reason=REASON_SUPERLOW)
 
     def calculate_changes(self, period, usecase):
         changes = []
         logs = []
         best_index = -1
         best_change = -100000
-        logs.append("Usecase: %s" % usecase)
+        logs.append("Usecase: %s " % usecase)
+        logs.append("Period: %d " % period)
         for index in range(len(self.datas)):
             data = self.datas[index]
             close_now = data.close[0]
             close_before = data.close[-period]
             change = (close_now - close_before) / close_before
             changes.append(change)
-            logs.append('%s / Period %d / CloseBefore %.3f / CloseNow %.3f / Change %.5f' % (
-                get_data_name(data), period, close_before, close_now, change))
+            rsi = self.rsi_list[index][0]
+            logs.append('%s / Today %.3f / Change %.5f / RSI %.3f' % (get_data_name(data), close_now, change, rsi))
             if change > best_change:
                 best_change = change
                 best_index = index
@@ -104,6 +135,27 @@ class Strategy4(OneOrderStrategy):
         self.log(next_log)
         return changes, best_change, best_index
 
-    def buy_stock(self, buy_index=0):
-        OneOrderStrategy.buy_stock(self, buy_index)
+    def calculate_rsi(self):
+        if self.p.mode == 2:
+            for index in range(len(self.datas)):
+                rsi = self.rsi_list[index][0]
+                rsi1 = self.rsi_list[index][-1]
+                if rsi <= self.rsi_param[index][0] < rsi1:
+                    return index
+        if self.p.mode == 3:
+            best_index = None
+            lowest_rsi = 100
+            for index in range(len(self.datas)):
+                rsi = self.rsi_list[index][0]
+                rsi1 = self.rsi_list[index][-1]
+                if rsi <= self.rsi_param[index][0] < rsi1:
+                    if rsi < lowest_rsi:
+                        best_index = index
+                        lowest_rsi = rsi
+            if best_index is not None:
+                return best_index
+        return None
+
+    def buy_stock(self, buy_index=0, buy_reason=0):
+        OneOrderStrategy.buy_stock(self, buy_index=buy_index, buy_reason=buy_reason)
         self.next_buy_index_2 = None

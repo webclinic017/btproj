@@ -67,7 +67,7 @@ def home():
 @app.route('/daily/<string:start_date>/<string:start_trade_date>')
 def daily_strategy(start_date, start_trade_date):
     logs = []
-    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date)
+    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
     logs.append('')
     logs = logs + run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date)
     logs.append('')
@@ -87,7 +87,7 @@ def daily_strategy(start_date, start_trade_date):
 def daily_strategy_logs(id, start_date, start_trade_date):
     logs = []
     if id == 1:
-        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=True)
+        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=True, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
     elif id == 2:
         logs = run(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     elif id == 3:
@@ -107,7 +107,7 @@ def daily_strategy_logs(id, start_date, start_trade_date):
 def daily_strategy_plot(id, start_date, start_trade_date):
     html = 'Invalid strategy'
     if id == 1:
-        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=False)
+        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=False, mode=2, rsi="((30, 5), (25, 5), (24, 5))")
     elif id == 2:
         html = run_plot(StrategyNorth, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     elif id == 3:
@@ -176,7 +176,7 @@ def data(stock_code, rows):
     return app.response_class(stream_with_context(generate()))
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False):
+def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -184,7 +184,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
     if starttradedt is None:
         starttradedt = start
 
-    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
+    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
     datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
@@ -210,7 +210,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
     return logs
 
 
-def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False):
+def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, **kwargs):
     cerebro = bt.Cerebro()
 
     strategy_class = strategy
@@ -218,7 +218,7 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     if starttradedt is None:
         starttradedt = start
 
-    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt)
+    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
     load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 

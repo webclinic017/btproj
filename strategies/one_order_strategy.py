@@ -13,6 +13,8 @@ class OneOrderStrategy(BaseStrategy):
         self.last_order_log = None
         self.last_next_log = None
         self.in_market_days = 0
+        self.buy_reason = 0
+        self.sell_reason = 0
 
     def next(self):
         in_market = False
@@ -57,18 +59,20 @@ class OneOrderStrategy(BaseStrategy):
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             self.log('Order ' + order.Status[order.status])
 
-    def buy_stock(self, buy_index=0, size=None):
+    def buy_stock(self, buy_index=0, size=None, buy_reason=0):
         data = self.datas[buy_index]
-        log_txt = 'BUY CREATE %s, %.3f, SIZE %s' % (get_data_name(data), data.close[0], str(size))
+        log_txt = 'BUY CREATE %s, %.3f, SIZE %s, BUYREASON %d' % (get_data_name(data), data.close[0], str(size), buy_reason)
         self.log(log_txt)
+        self.buy_reason = buy_reason
         self.order = self.buy(data, size=size, valid=Order.DAY)
         self.next_buy_index = None
         self.last_order_log = self.log_text(log_txt)
 
-    def sell_stock(self, sell_index=0, next_buy_index=None, size=None):
+    def sell_stock(self, sell_index=0, next_buy_index=None, size=None, sell_reason=0):
         data = self.datas[sell_index]
-        log_txt = 'SELL CREATE %s, %.3f, NEXT BUY %s, SIZE %s' % (get_data_name(data), data.close[0], next_buy_index, str(size))
+        log_txt = 'SELL CREATE %s, %.3f, NEXT BUY %s, SIZE %s, SELLREASON %d' % (get_data_name(data), data.close[0], next_buy_index, str(size), sell_reason)
         self.log(log_txt)
+        self.sell_reason = sell_reason
         self.order = self.sell(data, size=size, valid=Order.DAY)
         self.next_buy_index = next_buy_index
         self.last_order_log = self.log_text(log_txt)

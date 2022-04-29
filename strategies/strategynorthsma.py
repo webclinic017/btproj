@@ -1,9 +1,13 @@
 import datetime
 
-from backtrader.indicators import SmoothedMovingAverage, RelativeStrengthIndex
+from backtrader.indicators import RelativeStrengthIndex
 
 import loader
 from strategies.one_order_strategy import OneOrderStrategy
+
+
+REASON_MAIN = 1
+REASON_SUPERLOW = 2
 
 
 class StrategyNorthWithSMA(OneOrderStrategy):
@@ -19,14 +23,16 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         ('maxdrawbackbear', 0.1),
         ('smaperiod', 20),
         ('starttradedt', None),
-        ('mode', 2),
+        ('rsilow', 25),
+        ('rsidays', 5),
+        ('mode', 3),
         ('printlog', True)
     )
 
     def __init__(self):
         OneOrderStrategy.__init__(self)
         self.north_history = loader.load_north_single(self.params.market)
-        self.rsi = RelativeStrengthIndex(upperband=80, lowerband=25)
+        self.rsi = RelativeStrengthIndex(upperband=80, lowerband=self.params.rsilow)
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -34,6 +40,8 @@ class StrategyNorthWithSMA(OneOrderStrategy):
                 return
 
         self.check_first_day()
+
+        OneOrderStrategy.next(self)
 
         if self.order:
             return
@@ -46,7 +54,6 @@ class StrategyNorthWithSMA(OneOrderStrategy):
                          self.params.maxdrawbackbear, 'bear')
 
     def do_next(self, period, highp, lowp, maxd, trend):
-        # north_history = self.north_history['2016-12-05':self.datas[0].datetime.date()]
         today = self.datas[0].datetime.date()
         if period > 0:
             start_day = today - datetime.timedelta(days=period)
@@ -79,22 +86,26 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         self.last_next_log = next_log
         self.log(next_log)
 
-        # if has_position:
-        #     if north_value_today < north_value_low and self.macd.lines.macd < self.macd.lines.signal:
-        #         self.sell_stock()
-        # else:
-        #     if north_value_today > north_value_high and self.macd.lines.macd > self.macd.lines.signal:
-        #         self.buy_stock()
-
+        has_operation = False
         if has_position:
-            if north_value_today < north_value_low or self.data.close[0] < self.buy_price * (
-                    1 - maxd):
+            if north_value_today < north_value_low or self.data.close[0] < self.buy_price * (1 - maxd):
                 if no_north_today:
                     self.log('no north today sell')
-                # if north_value_today < north_value_low:
-                self.sell_stock()
+                self.sell_stock(sell_reason=REASON_MAIN)
+                has_operation = True
         else:
             if north_value_today > north_value_high:
                 if no_north_today:
                     self.log('no north today buy')
-                self.buy_stock()
+                self.buy_stock(buy_reason=REASON_MAIN)
+                has_operation = True
+
+        if self.p.mode == 3:
+            if not has_operation:
+                if not has_position:
+                    rsi1 = self.rsi[-1]
+                    if rsi <= self.params.rsilow < rsi1:
+                        self.buy_stock(buy_reason=REASON_SUPERLOW)
+                else:
+                    if self.buy_reason == REASON_SUPERLOW and self.in_market_days >= self.params.rsidays:
+                        self.sell_stock(sell_reason=REASON_SUPERLOW)
