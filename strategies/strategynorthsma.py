@@ -8,6 +8,7 @@ from strategies.one_order_strategy import OneOrderStrategy
 
 REASON_MAIN = 1
 REASON_SUPERLOW = 2
+REASON_SUPERHIGH = 3
 
 
 class StrategyNorthWithSMA(OneOrderStrategy):
@@ -23,6 +24,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         ('maxdrawbackbear', 0.1),
         ('smaperiod', 20),
         ('starttradedt', None),
+        ('rsihigh', 80),
         ('rsilow', 25),
         ('rsidays', 5),
         ('mode', 3),
@@ -32,7 +34,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
     def __init__(self):
         OneOrderStrategy.__init__(self)
         self.north_history = loader.load_north_single(self.params.market)
-        self.rsi = RelativeStrengthIndex(upperband=80, lowerband=self.params.rsilow)
+        self.rsi = RelativeStrengthIndex(upperband=self.params.rsihigh, lowerband=self.params.rsilow)
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -109,3 +111,18 @@ class StrategyNorthWithSMA(OneOrderStrategy):
                 else:
                     if self.buy_reason == REASON_SUPERLOW and self.in_market_days >= self.params.rsidays:
                         self.sell_stock(sell_reason=REASON_SUPERLOW)
+
+        if self.p.mode == 4:
+            if not has_operation:
+                if not has_position:
+                    rsi1 = self.rsi[-1]
+                    if rsi <= self.params.rsilow < rsi1:
+                        self.buy_stock(buy_reason=REASON_SUPERLOW)
+                    elif rsi1 < self.params.rsihigh <= rsi:
+                        self.buy_stock(buy_reason=REASON_SUPERHIGH)
+                else:
+                    if self.in_market_days >= self.params.rsidays:
+                        if self.buy_reason == REASON_SUPERLOW:
+                            self.sell_stock(sell_reason=REASON_SUPERLOW)
+                        elif self.buy_reason == REASON_SUPERHIGH:
+                            self.sell_stock(sell_reason=REASON_SUPERHIGH)

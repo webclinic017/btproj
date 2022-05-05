@@ -7,13 +7,14 @@ class Strategy0(OneOrderStrategy):
     params = (
         ('starttradedt', None),
         ('period', 5),
-        ('rsilevel', 25),
+        ('rsihigh', 80),
+        ('rsilow', 25),
         ('printlog', True),
     )
 
     def __init__(self):
         OneOrderStrategy.__init__(self)
-        self.rsi = RelativeStrengthIndex(upperband=80, lowerband=self.p.rsilevel)
+        self.rsi = RelativeStrengthIndex(upperband=self.p.rsihigh, lowerband=self.p.rsilow)
         # self.rsi = Stochastic()
         self.highest = Highest(self.data.high, period=self.p.period-1)
         self.lowest = Lowest(self.data.low, period=self.p.period-1)
@@ -21,7 +22,7 @@ class Strategy0(OneOrderStrategy):
     def next(self):
         rsi = self.rsi[-self.p.period]
         rsi0 = self.rsi[-self.p.period-1]
-        if rsi <= self.p.rsilevel < rsi0:
+        if rsi <= self.p.rsilow < rsi0 or rsi0 < self.p.rsihigh <= rsi:
             h = self.highest[0]
             l = self.lowest[0]
             cp = self.data.close[-self.p.period]

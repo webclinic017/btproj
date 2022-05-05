@@ -37,7 +37,8 @@ class Strategy4(OneOrderStrategy):
             data = self.datas[index]
             self.sma_list.append(MovingAverageSimple(data, period=self.params.sellperiod))
             self.ama_list.append(AdaptiveMovingAverage(data, slow=self.params.sellperiod))
-            self.rsi_list.append(RelativeStrengthIndex(data, lowerband=self.rsi_param[index][0]))
+            if self.p.mode != 1:
+                self.rsi_list.append(RelativeStrengthIndex(data, lowerband=self.rsi_param[index][0]))
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -124,8 +125,11 @@ class Strategy4(OneOrderStrategy):
             close_before = data.close[-period]
             change = (close_now - close_before) / close_before
             changes.append(change)
-            rsi = self.rsi_list[index][0]
-            logs.append('%s / Today %.3f / Change %.5f / RSI %.3f' % (get_data_name(data), close_now, change, rsi))
+            if self.p.mode != 1:
+                rsi = self.rsi_list[index][0]
+                logs.append('%s / Today %.3f / Change %.5f / RSI %.3f' % (get_data_name(data), close_now, change, rsi))
+            else:
+                logs.append('%s / Today %.3f / Change %.5f' % (get_data_name(data), close_now, change))
             if change > best_change:
                 best_change = change
                 best_index = index
