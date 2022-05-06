@@ -26,12 +26,12 @@ def home():
     <a href="daily"><h1>Daily Strategy</h1></a>
     <br/><br/>
     <h1>
-    Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF
+    Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2
     <a href="log/1">Log</a> <a href="plot/1">Plot</a>
     </h1>
     <br/><br/>
     <h1>
-    Strategy5 for HS300ETF/CYB50ETF/ZZ500ETF
+    Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 1
     <a href="log/4">Log</a> <a href="plot/4">Plot</a>
     </h1>
     <br/><br/>
@@ -69,7 +69,7 @@ def daily_strategy(start_date, start_trade_date):
     logs = []
     logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
     logs.append('')
-    logs = logs + run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date)
+    logs = logs + run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, mode=1)
     logs.append('')
     logs = logs + run(StrategyNorth, [Stock.CYB50ETF], start=start_date)
     logs.append('')
@@ -93,7 +93,7 @@ def daily_strategy_logs(id, start_date, start_trade_date):
     elif id == 3:
         logs = run(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=True)
     if id == 4:
-        logs = run(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=True)
+        logs = run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=True, mode=1)
     elif id == 5:
         logs = run(StrategyNorthWithSMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True)
     elif id == 6:
@@ -113,7 +113,7 @@ def daily_strategy_plot(id, start_date, start_trade_date):
     elif id == 3:
         html = run_plot(StrategyNorth, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, printLog=False)
     if id == 4:
-        html = run_plot(Strategy5, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=False)
+        html = run_plot(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start=start_date, data_start=60, starttradedt=start_trade_date, printLog=False, mode=1)
     elif id == 5:
         html = run_plot(StrategyNorthWithSMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False)
     elif id == 6:
