@@ -7,6 +7,7 @@ from loader import load_stock_data, date_ahead
 from strategies.strategy2 import Strategy2
 from strategies.strategy4 import Strategy4
 from strategies.strategy5 import Strategy5
+from strategies.strategySMA import StrategySMA
 from strategies.strategynorth import StrategyNorth
 
 
@@ -56,8 +57,8 @@ for duration in durations:
     # cerebro.optstrategy(StrategyNorth, period=[60, 120, 250, 500], highpercent=[0.6, 0.7, 0.8, 0.9],
     #                     lowpercent=[0.1, 0.2, 0.3, 0.4], maxdrawback=[0.02, 0.05, 0.1, 0.2],
     #                     printlog=False)
-    cerebro.optstrategy(StrategyNorthWithSMA, smaperiod=[5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 120],
-                        printlog=False)
+    # cerebro.optstrategy(StrategyNorthWithSMA, smaperiod=[5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 120],
+    #                     printlog=False)
     # cerebro.optstrategy(StrategyNorth4, period=[60, 120, 250, 500], highpercent=[0.6, 0.7, 0.8, 0.9],
     #                     lowpercent=[0.1, 0.2, 0.3, 0.4], maxdrawback=[0.02, 0.05, 0.1, 0.2],
     #                     printlog=False)
@@ -75,6 +76,9 @@ for duration in durations:
     # cerebro.optstrategy(StrategyNorth, period=[250, 500], highpercent=[0.8, 0.9],
     #                     lowpercent=[0.1, 0.2], maxdrawback=[0.02, 0.05, 0.1, 0.2],
     #                     offset=[0, 1, 5, 10, 20], printlog=False)
+    cerebro.optstrategy(StrategySMA, smaperiod=[20, 30, 40, 60], daystobuy=[5, 6, 7, 8, 9, 10, 11, 12, 13],
+                        daystosell=[2, 3, 4, 5, 6, 7], rsihigh=[74, 75, 76, 77, 78],
+                        printlog=False)
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe_ratio')
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')
     cerebro.addanalyzer(bt.analyzers.DrawDown, _name='drawdown')
@@ -86,7 +90,8 @@ for duration in durations:
         # [Stock.HS300, Stock.CYB50, Stock.ZZ500],
         # [Stock.HS300ETF, Stock.CYB50ETF],
         # [Stock.CYB50ETF],
-        [Stock.CYB50],
+        # [Stock.CYB50],
+        [Stock.HS300ETF],
         date_ahead(start, 365),
         end
     )

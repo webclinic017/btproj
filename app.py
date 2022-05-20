@@ -1,15 +1,16 @@
+import pathlib
+
 import backtrader as bt
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context
 
-import pathlib
 import stocks
 from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
-from strategies.strategy5 import Strategy5
+from strategies.strategySMA import StrategySMA
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
@@ -55,6 +56,11 @@ def home():
     <a href="log/6">Log</a> <a href="plot/6">Plot</a>
     </h1>
     <br/><br/>
+    <h1>
+    StrategySMA for CYB50ETF
+    <a href="log/7">Log</a> <a href="plot/7">Plot</a>
+    </h1>
+    <br/><br/>
     <a href="load"><h1>Load Latest Data</h1></a>
     <br/><br/>
     <a href="datalist"><h1>Show Data List</h1></a>
@@ -78,6 +84,8 @@ def daily_strategy(start_date, start_trade_date):
     logs = logs + run(StrategyNorthWithSMA, [Stock.CYB50ETF], data_start=60, start=start_date)
     logs.append('')
     logs = logs + run(StrategyNorthWithSMA, [Stock.A50ETF], data_start=60, start=start_date)
+    logs.append('')
+    logs = logs + run(StrategySMA, [Stock.CYB50ETF], data_start=60, start=start_date)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -98,6 +106,8 @@ def daily_strategy_logs(id, start_date, start_trade_date):
         logs = run(StrategyNorthWithSMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True)
     elif id == 6:
         logs = run(StrategyNorthWithSMA, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True)
+    elif id == 7:
+        logs = run(StrategySMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -118,6 +128,8 @@ def daily_strategy_plot(id, start_date, start_trade_date):
         html = run_plot(StrategyNorthWithSMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False)
     elif id == 6:
         html = run_plot(StrategyNorthWithSMA, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False)
+    elif id == 7:
+        html = run_plot(StrategySMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False)
     return html
 
 
