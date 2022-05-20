@@ -159,7 +159,7 @@ def data(stock_code, rows):
         lines = [lines[0]] + lines[-rows:][::-1]
         yield '<html>'
         yield '<style>'
-        yield 'td {text-align: center;}'
+        yield 'td {text-align: right;}'
         yield '</style>'
         yield '<body>'
         yield '<table border="1" cellspacing="0">'
