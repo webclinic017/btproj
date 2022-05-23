@@ -3,6 +3,7 @@ import datetime
 from backtrader.indicators import RelativeStrengthIndex
 
 import loader
+from indicators.NorthInd import NorthValue
 from strategies.one_order_strategy import OneOrderStrategy
 
 
@@ -35,6 +36,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         OneOrderStrategy.__init__(self)
         self.north_history = loader.load_north_single(self.params.market)
         self.rsi = RelativeStrengthIndex(upperband=self.params.rsihigh, lowerband=self.params.rsilow)
+        self.north = NorthValue(market=self.params.market)
 
     def next(self):
         if self.params.starttradedt is not None:

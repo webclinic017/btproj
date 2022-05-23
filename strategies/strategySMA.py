@@ -1,7 +1,6 @@
-from backtrader.indicators import RelativeStrengthIndex, MovingAverageSimple
+from backtrader.indicators import RelativeStrengthIndex, BollingerBands
 
 from strategies.one_order_strategy import OneOrderStrategy
-
 
 REASON_MAIN = 1
 REASON_SUPERLOW = 2
@@ -11,19 +10,21 @@ class StrategySMA(OneOrderStrategy):
 
     params = (
         ('smaperiod', 30),
+        ('devfactor', 1.5),
         ('daystobuy', 8),
         ('daystosell', 2),
         ('starttradedt', None),
         ('rsihigh', 74),
         ('rsilow', 25),
         ('rsidays', 5),
+        ('mode', 1),
         ('printlog', True)
     )
 
     def __init__(self):
         OneOrderStrategy.__init__(self)
-        self.sma = MovingAverageSimple(self.datas[0].close, period=self.params.smaperiod)
         self.rsi = RelativeStrengthIndex(upperband=self.params.rsihigh, lowerband=self.params.rsilow)
+        self.bb = BollingerBands(period=self.params.smaperiod, devfactor=self.params.devfactor)
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -40,47 +41,50 @@ class StrategySMA(OneOrderStrategy):
         has_position = True if self.getposition() else False
         rsi = self.rsi[0]
 
-
         has_operation = False
 
+        daystosell = self.p.daystosell
+        close_prices = self.data.close.get(size=daystosell)
+        sma_prices = self.bb.mid.get(size=daystosell)
+
+        below_sma_count = 0
+        for i in range(daystosell):
+            if close_prices[i] < sma_prices[i]:
+                below_sma_count = below_sma_count + 1
+
+        daystobuy = self.p.daystobuy
+        close_prices = self.data.close.get(size=daystobuy)
+        sma_prices = self.bb.mid.get(size=daystobuy)
+        bb_top_prices = self.bb.top.get(size=daystobuy)
+
+        above_sma_count = 0
+        above_bb_topup_count = 0
+        for i in range(daystobuy):
+            if close_prices[i] > sma_prices[i]:
+                above_sma_count = above_sma_count + 1
+            if close_prices[i] > bb_top_prices[i]:
+                above_bb_topup_count = above_bb_topup_count + 1
+
+        next_log = '%s / Data %.3f / below SMA size %d / above SMA size %d / above BB top size %d / RSI %.3f' \
+                   % (has_position, self.data.close[0], below_sma_count, above_sma_count, above_bb_topup_count, rsi)
+        self.last_next_log = next_log
+        self.log(next_log)
+
         if has_position:
-            daystosell = self.p.daystosell
-            close_prices = self.data.close.get(size=daystosell)
-            sma_prices = self.sma.get(size=daystosell)
-
-            below_sma_count = 0
-            for i in range(daystosell):
-                if close_prices[i] < sma_prices[i]:
-                    below_sma_count = below_sma_count + 1
-
-            next_log = '%s / Data %.3f / below SMA size %d / RSI %.3f' \
-                       % (has_position, self.data.close[0], below_sma_count, rsi)
-            self.last_next_log = next_log
-            self.log(next_log)
-
             all_below_sma = below_sma_count == daystosell
             if all_below_sma and self.buy_reason != REASON_SUPERLOW:
                 self.sell_stock(sell_reason=REASON_MAIN)
                 has_operation = True
         else:
-            daystobuy = self.p.daystobuy
-            close_prices = self.data.close.get(size=daystobuy)
-            sma_prices = self.sma.get(size=daystobuy)
-
-            above_sma_count = 0
-            for i in range(daystobuy):
-                if close_prices[i] > sma_prices[i]:
-                    above_sma_count = above_sma_count + 1
-
-            next_log = '%s / Data %.3f / above SMA size %d / RSI %.3f' \
-                       % (has_position, self.data.close[0], above_sma_count, rsi)
-            self.last_next_log = next_log
-            self.log(next_log)
-
             all_above_sma = above_sma_count == daystobuy
-            if all_above_sma:
-                self.buy_stock(buy_reason=REASON_MAIN)
-                has_operation = True
+            if self.p.mode == 1:
+                if all_above_sma:
+                    self.buy_stock(buy_reason=REASON_MAIN)
+                    has_operation = True
+            else:
+                if all_above_sma and above_bb_topup_count == 0 and sma_prices[0] < sma_prices[-1]:
+                    self.buy_stock(buy_reason=REASON_MAIN)
+                    has_operation = True
 
         if not has_operation:
             if not has_position:

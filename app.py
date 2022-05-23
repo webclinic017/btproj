@@ -85,7 +85,7 @@ def daily_strategy(start_date, start_trade_date):
     logs.append('')
     logs = logs + run(StrategyNorthWithSMA, [Stock.A50ETF], data_start=60, start=start_date)
     logs.append('')
-    logs = logs + run(StrategySMA, [Stock.CYB50ETF], data_start=60, start=start_date)
+    logs = logs + run(StrategySMA, [Stock.CYB50ETF], data_start=60, start=start_date, mode=1)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -107,7 +107,7 @@ def daily_strategy_logs(id, start_date, start_trade_date):
     elif id == 6:
         logs = run(StrategyNorthWithSMA, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True)
     elif id == 7:
-        logs = run(StrategySMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True)
+        logs = run(StrategySMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=True, mode=1)
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -129,7 +129,7 @@ def daily_strategy_plot(id, start_date, start_trade_date):
     elif id == 6:
         html = run_plot(StrategyNorthWithSMA, [Stock.A50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False)
     elif id == 7:
-        html = run_plot(StrategySMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False)
+        html = run_plot(StrategySMA, [Stock.CYB50ETF], start=start_date, starttradedt=start_trade_date, data_start=60, printLog=False, mode=1)
     return html
 
 
