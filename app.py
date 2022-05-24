@@ -166,6 +166,7 @@ def datalist():
 @app.route("/data/<stock_code>", defaults={'rows': 30})
 @app.route('/data/<stock_code>/<int:rows>')
 def data(stock_code, rows):
+    stock = get_stock(stock_code)
     def generate():
         lines = pathlib.Path(get_datafile_name(stock_code)).read_text().split("\n")
         lines = [lines[0]] + lines[-rows:][::-1]
@@ -174,6 +175,8 @@ def data(stock_code, rows):
         yield 'td {text-align: right;}'
         yield '</style>'
         yield '<body>'
+        yield '<p>' + stock.name + '</p>'
+        yield '<p>' + stock_code + '</p>'
         yield '<table border="1" cellspacing="0">'
         for line in lines:
             if len(line) > 0:
@@ -250,3 +253,10 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     cerebro.plot(b)
 
     return pathlib.Path(filename).read_text()
+
+
+def get_stock(stock_code):
+    for stock in stocks.Stock:
+        if stock_code == stock.code:
+            return stock
+    return None
