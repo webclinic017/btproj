@@ -1,4 +1,5 @@
 import pathlib
+import datetime
 
 import backtrader as bt
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
@@ -11,6 +12,7 @@ from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
 from strategies.strategySMA import StrategySMA
+from strategies.strategydisplay import StrategyDisplay
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorthsma import StrategyNorthWithSMA
 
@@ -155,7 +157,7 @@ def datalist():
     def generate():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
-            yield '<a href="data/%s"><h1>%s</h1></a>' % (stock.code, stock.cnname)
+            yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot</a></h1>' % (stock.code, stock.cnname, stock.code)
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_all', 'North All')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sh', 'North Shanghai')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sz', 'North Shenzhen')
@@ -189,6 +191,18 @@ def data(stock_code, rows):
         yield "</table>"
         yield "</body></html>"
     return app.response_class(stream_with_context(generate()))
+
+
+@app.route("/dataplot/<stock_code>", defaults={'start_date': None, 'end_date': None})
+@app.route('/dataplot/<stock_code>/<string:start_date>', defaults={'end_date': None})
+@app.route('/dataplot/<stock_code>/<string:start_date>/<string:end_date>')
+def dataplot(stock_code, start_date, end_date):
+    if start_date is None:
+        today = datetime.date.today()
+        start_date = str(today - datetime.timedelta(days=365))
+    stock = get_stock(stock_code)
+    html = run_data_plot([stock], start=start_date, end=end_date)
+    return html
 
 
 def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, **kwargs):
@@ -242,6 +256,29 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     cerebro.broker.setcommission(commission=0.00025)
 
     cerebro.addobservermulti(RelativeValue, starttradedt=starttradedt)
+
+    cerebro.run()
+
+    folder = 'plot'
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+    filename = folder + '/app.html'
+
+    b = Bokeh(style='bar', plot_mode='single', filename=filename, show=False, output_mode='save')
+    cerebro.plot(b)
+
+    return pathlib.Path(filename).read_text()
+
+
+def run_data_plot(stocks, start=None, end=None, data_start=0):
+    cerebro = bt.Cerebro()
+
+    cerebro.addstrategy(StrategyDisplay)
+
+    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+
+    cerebro.broker.setcash(1000000.0)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
+    cerebro.broker.setcommission(commission=0.00025)
 
     cerebro.run()
 
