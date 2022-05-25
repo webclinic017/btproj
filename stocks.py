@@ -4,38 +4,36 @@ import backtrader as bt
 
 
 class Stock(enum.Enum):
-    HS300 = ('HS300', 'sh000300')
-    ZZ500 = ('ZZ500', 'sh000905')
-    CYB50 = ('CYB50', 'sz399673')
-    SZ50 = ('SZ50', 'sh000016')
-    CYB = ('CYB', 'sz399006')
-    KC50 = ('KC50', 'sh000688')
-    HS300ETF = ('HS300ETF', 'sh510310')
-    HS300ETF_2 = ('HS300ETF_2', 'sh510300')
-    CYB50ETF = ('CYB50ETF', 'sz159949')
-    ZZ500ETF = ('ZZ500ETF', 'sh510500')
-    A50ETF = ('A50ETF', 'sz159602')
+    HS300 = ('HS300', 'sh000300', '沪深300')
+    ZZ500 = ('ZZ500', 'sh000905', '中证500')
+    CYB50 = ('CYB50', 'sz399673', '创业板50')
+    SZ50 = ('SZ50', 'sh000016', '上证50')
+    CYB = ('CYB', 'sz399006', '创业板')
+    KC50 = ('KC50', 'sh000688', '科创50')
+    HS300ETF = ('HS300ETF', 'sh510310', '沪深300ETF')
+    HS300ETF_2 = ('HS300ETF_2', 'sh510300', '沪深300ETF2')
+    CYB50ETF = ('CYB50ETF', 'sz159949', '创业板50ETF')
+    ZZ500ETF = ('ZZ500ETF', 'sh510500', '中证500ETF')
+    A50ETF = ('A50ETF', 'sz159602', 'A50ETF')
 
-    ZGHLWETF = ('ZGHLWETF', 'sh513050')
-    ZQETF = ('ZQETF', 'sh512880')
-    QSETF = ('QSETF', 'sh512000')
-    HJETF = ('HJETF', 'sh518880')
-    JETF = ('JETF', 'sh512690')
-    XNYCETF = ('XNYCETF', 'sh515030')
-    NZETF = ('NZETF', 'sh513100')
-    YHETF = ('YHETF', 'sh512800')
-    XPETF = ('XPETF', 'sz159995')
-    BDTETF = ('BDTETF', 'sh512480')
-    YYETF = ('YYETF', 'sh512010')
-    KZZETF = ('KZZETF', 'sh511380')
-    JGETF = ('JGETF', 'sh512660')
+    ZGHLWETF = ('ZGHLWETF', 'sh513050', '中概互联ETF')
+    ZQETF = ('ZQETF', 'sh512880', '证券ETF')
+    QSETF = ('QSETF', 'sh512000', '券商ETF')
+    HJETF = ('HJETF', 'sh518880', '黄金ETF')
+    JETF = ('JETF', 'sh512690', '酒ETF')
+    XNYCETF = ('XNYCETF', 'sh515030', '新能源车ETF')
+    NZETF = ('NZETF', 'sh513100', '纳斯达克100ETF')
+    YHETF = ('YHETF', 'sh512800', '银行ETF')
+    XPETF = ('XPETF', 'sz159995', '芯片ETF')
+    BDTETF = ('BDTETF', 'sh512480', '半导体ETF')
+    YYETF = ('YYETF', 'sh512010', '医药ETF')
+    KZZETF = ('KZZETF', 'sh511380', '可转债ETF')
+    JGETF = ('JGETF', 'sh512660', '军工ETF')
 
-
-
-
-    def __init__(self, stockname: str, code: str):
+    def __init__(self, stockname: str, code: str, cnname: str):
         self.stockname = stockname
         self.code = code
+        self.cnname = cnname
 
 
 class StockData:

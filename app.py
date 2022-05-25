@@ -155,7 +155,7 @@ def datalist():
     def generate():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
-            yield '<a href="data/%s"><h1>%s</h1></a>' % (stock.code, stock.stockname)
+            yield '<a href="data/%s"><h1>%s</h1></a>' % (stock.code, stock.cnname)
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_all', 'North All')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sh', 'North Shanghai')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sz', 'North Shenzhen')

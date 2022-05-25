@@ -135,12 +135,15 @@ def load_market_pe_single(market, start=None, end=None):
     return process_stock_history(history, start, end)
 
 
-def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str):
+def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True):
     datas = []
     for stock in stocks:
         df = load_stock_history(stock.code, start, end)
         data = bt.feeds.PandasData(dataname=df)
-        cerebro.adddata(data, name=stock.stockname)
+        if cnname:
+            cerebro.adddata(data, name=stock.cnname)
+        else:
+            cerebro.adddata(data, name=stock.stockname)
         datas.append(data)
     return datas
 
