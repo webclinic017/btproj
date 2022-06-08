@@ -177,7 +177,8 @@ def data(stock_code, rows):
         yield 'td {text-align: right;}'
         yield '</style>'
         yield '<body>'
-        yield '<p>' + stock.name + '</p>'
+        if stock is not None:
+            yield '<p>' + stock.cnname + '</p>'
         yield '<p>' + stock_code + '</p>'
         yield '<table border="1" cellspacing="0">'
         for line in lines:
