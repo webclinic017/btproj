@@ -63,7 +63,9 @@ def home():
     <a href="log/7">Log</a> <a href="plot/7">Plot</a>
     </h1>
     <br/><br/>
-    <a href="load"><h1>Load Latest Data</h1></a>
+    <a href="load/sina"><h1>Load Latest Data Sina</h1></a>
+    <br/><br/>
+    <a href="load/tx"><h1>Load Latest Data Tencent</h1></a>
     <br/><br/>
     <a href="datalist"><h1>Show Data List</h1></a>
     </body>
@@ -135,12 +137,13 @@ def daily_strategy_plot(id, start_date, start_trade_date):
     return html
 
 
-@app.route("/load")
-def load():
+@app.route("/load", defaults={'source': 'sina'})
+@app.route("/load/<string:source>")
+def load(source):
     def generate():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
-            history = force_load_stock_history(stock.code)
+            history = force_load_stock_history(stock.code, source)
             yield '%s %s loaded<br/>' % (stock.code, str(history.iloc[-1]['date']))
 
         north_results = force_load_north()

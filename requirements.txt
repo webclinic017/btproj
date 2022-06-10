@@ -1,4 +1,4 @@
-akshare==1.5.3
+akshare==1.6.4
 backtrader==1.9.76.123
 backtrader-plotting==2.0.0
 beautifulsoup4==4.9.3

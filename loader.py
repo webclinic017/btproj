@@ -14,9 +14,12 @@ def get_datafile_name(stock_code):
     return str(parent.joinpath("data/daily/"+stock_code+"_data.csv"))
 
 
-def force_load_stock_history(stock_code):
+def force_load_stock_history(stock_code, source='sina'):
     filename = get_datafile_name(stock_code)
-    history = ak.stock_zh_index_daily(symbol=stock_code)
+    if source == 'sina':
+        history = ak.stock_zh_index_daily(symbol=stock_code)
+    elif source == 'tx':
+        history = ak.stock_zh_index_daily_tx(symbol=stock_code)
     history.to_csv(filename)
     return history
 
