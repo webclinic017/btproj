@@ -137,14 +137,16 @@ def daily_strategy_plot(id, start_date, start_trade_date):
     return html
 
 
-@app.route("/load", defaults={'source': 'sina'})
-@app.route("/load/<string:source>")
-def load(source):
+@app.route("/load", defaults={'source': 'sina', 'coreonly': "False"})
+@app.route("/load/<string:source>", defaults={'coreonly': "False"})
+@app.route("/load/<string:source>/<string:coreonly>")
+def load(source, coreonly):
     def generate():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
-            history = force_load_stock_history(stock.code, source)
-            yield '%s %s loaded<br/>' % (stock.code, str(history.iloc[-1]['date']))
+            if coreonly != 'True' or stock.core:
+                history = force_load_stock_history(stock.code, source)
+                yield '%s %s loaded<br/>' % (stock.code, str(history.iloc[-1]['date']))
 
         north_results = force_load_north()
         for north_result in north_results:

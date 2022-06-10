@@ -4,17 +4,17 @@ import backtrader as bt
 
 
 class Stock(enum.Enum):
-    HS300 = ('HS300', 'sh000300', '沪深300')
-    ZZ500 = ('ZZ500', 'sh000905', '中证500')
-    CYB50 = ('CYB50', 'sz399673', '创业板50')
-    SZ50 = ('SZ50', 'sh000016', '上证50')
-    CYB = ('CYB', 'sz399006', '创业板')
-    KC50 = ('KC50', 'sh000688', '科创50')
-    HS300ETF = ('HS300ETF', 'sh510310', '沪深300ETF')
-    HS300ETF_2 = ('HS300ETF_2', 'sh510300', '沪深300ETF2')
-    CYB50ETF = ('CYB50ETF', 'sz159949', '创业板50ETF')
-    ZZ500ETF = ('ZZ500ETF', 'sh510500', '中证500ETF')
-    A50ETF = ('A50ETF', 'sz159602', 'A50ETF')
+    HS300 = ('HS300', 'sh000300', '沪深300', True)
+    ZZ500 = ('ZZ500', 'sh000905', '中证500', True)
+    CYB50 = ('CYB50', 'sz399673', '创业板50', True)
+    SZ50 = ('SZ50', 'sh000016', '上证50', True)
+    CYB = ('CYB', 'sz399006', '创业板', True)
+    KC50 = ('KC50', 'sh000688', '科创50', True)
+    HS300ETF = ('HS300ETF', 'sh510310', '沪深300ETF', True)
+    HS300ETF_2 = ('HS300ETF_2', 'sh510300', '沪深300ETF2', True)
+    CYB50ETF = ('CYB50ETF', 'sz159949', '创业板50ETF', True)
+    ZZ500ETF = ('ZZ500ETF', 'sh510500', '中证500ETF', True)
+    A50ETF = ('A50ETF', 'sz159602', 'A50ETF', True)
 
     ZGHLWETF = ('ZGHLWETF', 'sh513050', '中概互联ETF')
     ZQETF = ('ZQETF', 'sh512880', '证券ETF')
@@ -30,10 +30,11 @@ class Stock(enum.Enum):
     KZZETF = ('KZZETF', 'sh511380', '可转债ETF')
     JGETF = ('JGETF', 'sh512660', '军工ETF')
 
-    def __init__(self, stockname: str, code: str, cnname: str):
+    def __init__(self, stockname: str, code: str, cnname: str, core: bool = False):
         self.stockname = stockname
         self.code = code
         self.cnname = cnname
+        self.core = core;
 
 
 class StockData:
