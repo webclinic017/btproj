@@ -32,7 +32,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
-    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, cnname=False)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -105,13 +105,13 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 
 run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
 # run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=1)
-# run(StrategyNorth, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
-# run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorth, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
 run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
 run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=True, market='sh', mode=1)
 # run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=1)
-run(StrategySMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False)
+# run(StrategySMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=1)
 
 # run(StrategyNorth5, [Stock.CYB50ETF], start='2020-03-20', data_start=365, plot=True, printlog=False, market='sh')
 
@@ -181,8 +181,16 @@ run(StrategySMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False
 # run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2014-10-01', data_start=60, plot=False, printlog=False, mode=3, rsi=((30, 5), (25, 5), (24, 5)))
 
 # run(StrategyNorth, [Stock.CYB50ETF], start='2019-01-01', end="2022-01-01", data_start=60, plot=False, printlog=False, market='sh')
-# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2019-01-01', end="2022-01-01", data_start=60, plot=False, printlog=False, market='sh', mode=3)
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-07-01', end="2022-01-01", data_start=60, plot=True, printlog=False, market='sh', mode=3)
 
-# run(StrategySMA, [Stock.CYB50ETF], start='2015-01-01', end="2022-05-01", data_start=60, plot=False, printlog=False, rsihigh=74)
-# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2015-01-01', end="2022-05-01", data_start=60, plot=False, printlog=False, market='sh', mode=3)
-# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2015-01-01', end="2022-05-01", data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+# run(StrategySMA, [Stock.CYB50ETF], start='2017-01-01', end="2022-05-01", data_start=60, plot=True, printlog=False, rsihigh=74, mode=1)
+# run(StrategySMA, [Stock.CYB50ETF], start='2017-01-01', end="2022-05-01", data_start=60, plot=True, printlog=False, rsihigh=74, mode=2)
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2017-01-01', end="2022-05-01", data_start=60, plot=True, printlog=False, market='sh', mode=3)
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-07-01', end="2022-05-01", data_start=60, plot=True, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+
+
+# run(StrategySMA, [Stock.HS300ETF], start='2017-01-01', end="2022-05-01", data_start=60, plot=False, printlog=False, rsihigh=76, smaperiod=30, daystobuy=7, daystosell=3)
+# run(StrategySMA, [Stock.HS300ETF], start='2019-01-01', end="2022-05-01", data_start=60, plot=True, printlog=False, rsihigh=85, rsilow=30, smaperiod=30, daystobuy=7, daystosell=3)
+# run(StrategySMA, [Stock.HS300ETF], start='2017-01-01', end="2022-01-01", data_start=60, plot=True, printlog=False, rsihigh=85, rsilow=30, smaperiod=40, daystobuy=5, daystosell=3)
+# run(StrategySMA, [Stock.HS300ETF], start='2017-01-01', end="2022-01-01", data_start=60, plot=True, printlog=False, rsihigh=85, rsilow=30, smaperiod=20, daystobuy=6, daystosell=5, mode=1)
+# run(StrategySMA, [Stock.HS300ETF], start='2017-01-01', end="2022-05-01", data_start=60, plot=True, printlog=False, rsihigh=85, rsilow=30, smaperiod=20, daystobuy=6, daystosell=5, mode=2)
