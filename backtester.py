@@ -1,6 +1,7 @@
 import pathlib
 
 import backtrader as bt
+import pandas as pd
 import quantstats
 from backtrader.observers import BuySell, Broker, Trades, DataTrades
 
@@ -20,6 +21,8 @@ from strategies.strategynorth3 import StrategyNorth3
 from strategies.strategynorth4 import StrategyNorth4
 from strategies.strategynorth5 import StrategyNorth5
 from strategies.strategynorthsma import StrategyNorthWithSMA
+
+pd.options.mode.chained_assignment = None
 
 
 def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, benchmark=False, **kwargs):
@@ -108,7 +111,9 @@ run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-
 run(StrategyNorth, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
 run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
 run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
-run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
+run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=True, printlog=False, market='sh', mode=3)
+run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=True, printlog=False, market='sh', mode=3,
+    periodbull=250, highpercentbull=0.8, lowpercentbull=0.4, maxdrawbackbull=0.05, periodbear=120, highpercentbear=0.9, lowpercentbear=0.2, maxdrawbackbear=0.1, smaperiod=10)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=True, market='sh', mode=1)
 # run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=1)
 # run(StrategySMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=1)

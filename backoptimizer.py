@@ -29,9 +29,9 @@ durations = [
     # ('2014-06-18', '2019-01-01'),
     # ('2014-06-18', '2019-01-01'),
     # ('2019-01-01', '2020-12-31'),
-    ('2015-12-01', '2021-07-07'), #1
+    # ('2015-12-01', '2021-07-07'), #1
     # ('2018-01-22', '2020-06-30'),
-    ('2016-07-22', '2020-07-07'), #2
+    # ('2016-07-22', '2020-07-07'), #2
     # ('2016-07-22', '2019-01-30'),
     # ('2015-05-01', '2019-01-01'),
     # ('2021-03-20', None), #3
@@ -40,6 +40,7 @@ durations = [
     # ('2017-01-01', '2018-12-31'),
     # ('2017-01-01', '2019-12-31'),
     # ('2017-01-01', '2020-12-31'),
+    ('2021-11-08', '2022-05-01'), #A50ETF
 ]
 
 for duration in durations:
@@ -76,9 +77,18 @@ for duration in durations:
     # cerebro.optstrategy(StrategyNorth, period=[250, 500], highpercent=[0.8, 0.9],
     #                     lowpercent=[0.1, 0.2], maxdrawback=[0.02, 0.05, 0.1, 0.2],
     #                     offset=[0, 1, 5, 10, 20], printlog=False)
-    cerebro.optstrategy(StrategySMA, smaperiod=[20, 30, 40, 60], daystobuy=[5, 6, 7, 8, 9, 10, 11, 12, 13],
-                        daystosell=[2, 3, 4, 5, 6, 7], rsihigh=[74, 75, 76, 77, 78],
-                        printlog=False)
+    # cerebro.optstrategy(StrategySMA, smaperiod=[20, 30, 40], daystobuy=[5, 6, 7, 8, 9, 10, 11, 12, 13],
+    #                     daystosell=[1, 2, 3, 4, 5], mode=[1, 2], devfactor=[1.5, 2, 3],
+    #                     printlog=False)
+    # cerebro.optstrategy(StrategySMA, smaperiod=[20, 30, 40], devfactor=[1.5, 2.0], daystobuy=[3, 4, 5, 6, 7, 8, 9, 10, 11],
+    #                     daystosell=[1, 2, 3, 4, 5], rsihigh=[85, 86], rsilow=[30],
+    #                     printlog=False)
+    cerebro.optstrategy(StrategyNorthWithSMA,
+                        periodbull=[120, 250, 500], highpercentbull=[0.6, 0.7, 0.8, 0.9],
+                        lowpercentbull=[0.1, 0.2, 0.3, 0.4],
+                        periodbear=[120, 250, 500], highpercentbear=[0.6, 0.7, 0.8, 0.9],
+                        lowpercentbear=[0.1, 0.2, 0.3, 0.4],
+                        smaperiod=[10, 20, 30], printlog=False)
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe_ratio')
     cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')
     cerebro.addanalyzer(bt.analyzers.DrawDown, _name='drawdown')
@@ -91,7 +101,8 @@ for duration in durations:
         # [Stock.HS300ETF, Stock.CYB50ETF],
         # [Stock.CYB50ETF],
         # [Stock.CYB50],
-        [Stock.HS300ETF],
+        # [Stock.HS300ETF],
+        [Stock.A50ETF],
         date_ahead(start, 365),
         end
     )
@@ -103,7 +114,7 @@ for duration in durations:
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
 
-    optimized_runs = cerebro.run(maxcpus=1)
+    optimized_runs = cerebro.run(maxcpus=None)
 
     final_results_list = []
     for run in optimized_runs:
