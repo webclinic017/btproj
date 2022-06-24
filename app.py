@@ -24,42 +24,48 @@ strategies = [
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
         "data_start": 60,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"}
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
+        "core": True
     },
     {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 1",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
         "data_start": 60,
-        "args": {"mode": 1}
+        "args": {"mode": 1},
+        "core": False
     },
     {
         "label": "StrategyNorth for CYB50ETF",
         "class": StrategyNorth,
         "stocks": [Stock.CYB50ETF],
         "data_start": 0,
-        "args": {}
+        "args": {},
+        "core": False
     },
     {
         "label": "StrategyNorth for A50ETF",
         "class": StrategyNorth,
         "stocks": [Stock.A50ETF],
         "data_start": 0,
-        "args": {}
+        "args": {},
+        "core": False
     },
     {
         "label": "StrategyNorthWithSMA for CYB50ETF",
         "class": StrategyNorthWithSMA,
         "stocks": [Stock.CYB50ETF],
         "data_start": 60,
-        "args": {}
+        "args": {},
+        "core": True
     },
     {
         "label": "StrategyNorthWithSMA for A50ETF",
         "class": StrategyNorthWithSMA,
         "stocks": [Stock.A50ETF],
         "data_start": 60,
-        "args": {}
+        "args": {},
+        "core": False
     },
     {
         "label": "StrategyNorthWithSMA for A50ETF New Args",
@@ -68,14 +74,16 @@ strategies = [
         "data_start": 60,
         "args": {"periodbull": 250, "highpercentbull": 0.8, "lowpercentbull": 0.4, "maxdrawbackbull": 0.05,
                  "periodbear": 120, "highpercentbear": 0.9, "lowpercentbear": 0.2, "maxdrawbackbear": 0.1,
-                 "smaperiod": 10}
+                 "smaperiod": 10},
+        "core": True
     },
     {
         "label": "StrategySMA for CYB50ETF",
         "class": StrategySMA,
         "stocks": [Stock.CYB50ETF],
         "data_start": 60,
-        "args": {"mode": 1}
+        "args": {"mode": 1},
+        "core": False
     }
 ]
 
@@ -103,7 +111,9 @@ def home():
 </head>
 <body>
 <div class="item">
-    <a href="daily">Daily Strategy</a>
+    Daily Strategy
+    <a class="sublink" href="daily?coreonly=False">All</a>
+    <a class="sublink" href="daily?coreonly=True">Core Only</a>
 </div>
 %s
 <div class="item">
@@ -125,12 +135,14 @@ def home():
 @app.route('/daily/<string:start_date>', defaults={'start_trade_date': None})
 @app.route('/daily/<string:start_date>/<string:start_trade_date>')
 def daily_strategy(start_date, start_trade_date):
+    coreonly = request.args.get('coreonly', default="False")
     logs = []
     for strategy in strategies:
-        logs.append(strategy["label"])
-        logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                          starttradedt=start_trade_date, **strategy["args"])
-        logs.append('')
+        if coreonly != 'True' or strategy["core"]:
+            logs.append(strategy["label"])
+            logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
+                              starttradedt=start_trade_date, **strategy["args"])
+            logs.append('')
     logs = list(map(lambda line: decorate_line(line), logs))
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
