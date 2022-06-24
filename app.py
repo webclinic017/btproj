@@ -4,7 +4,7 @@ import datetime
 import backtrader as bt
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
-from flask import Flask, stream_with_context
+from flask import Flask, stream_with_context, request
 
 import stocks
 from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
@@ -85,27 +85,39 @@ def home():
     strategy_contents = ""
     for i in range(len(strategies)):
         strategy = strategies[i]
-        strategy_contents += """<h1>
-    %s
-    <a href="log/%d">Log</a> <a href="plot/%d">Plot</a>
-    </h1>
-    <br/><br/>""" % (strategy["label"], i, i)
+        strategy_contents += """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a></div>""" % (strategy["label"], i, i)
 
-    content = """<html>
-    <head>
-    <title>Daily Strategy</title>
-    </head>
-    <body>
-    <a href="daily"><h1>Daily Strategy</h1></a>
-    <br/><br/>
-    """ + strategy_contents + """
-    <a href="load/sina"><h1>Load Latest Data Sina</h1></a>
-    <br/><br/>
-    <a href="load/tx"><h1>Load Latest Data Tencent</h1></a>
-    <br/><br/>
-    <a href="datalist"><h1>Show Data List</h1></a>
-    </body>
-    </html>"""
+    content = """
+<html>
+<head>
+<title>Daily Strategy</title>
+<style>
+.item {
+  font-size: 30px;
+  margin: 25px 0px;
+}
+.sublink {
+  margin: 0px 10px;
+}
+</style>
+</head>
+<body>
+<div class="item">
+    <a href="daily">Daily Strategy</a>
+</div>
+%s
+<div class="item">
+    Load Latest Data 
+    <a class="sublink" href="load?source=sina&coreonly=False">Sina All</a>
+    <a class="sublink" href="load?source=sina&coreonly=True">Sina Core Only</a>
+    <a class="sublink" href="load?source=sina&coreonly=True">Tencent All</a>
+</div>
+<div class="item">
+    <a href="datalist">Show Data List</a>
+</div>
+</body>
+</html>
+    """ % (strategy_contents)
     return content
 
 
@@ -117,8 +129,9 @@ def daily_strategy(start_date, start_trade_date):
     for strategy in strategies:
         logs.append(strategy["label"])
         logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                      starttradedt=start_trade_date, **strategy["args"])
+                          starttradedt=start_trade_date, **strategy["args"])
         logs.append('')
+    logs = list(map(lambda line: decorate_line(line), logs))
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -129,7 +142,8 @@ def daily_strategy_logs(id, start_date, start_trade_date):
     strategy = strategies[id]
     logs = [strategy["label"]]
     logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-               starttradedt=start_trade_date, printLog=True, **strategy["args"])
+                      starttradedt=start_trade_date, printLog=True, **strategy["args"])
+    logs = list(map(lambda line: decorate_line(line), logs))
     return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
 
 
@@ -143,10 +157,10 @@ def daily_strategy_plot(id, start_date, start_trade_date):
     return html
 
 
-@app.route("/load", defaults={'source': 'sina', 'coreonly': "False"})
-@app.route("/load/<string:source>", defaults={'coreonly': "False"})
-@app.route("/load/<string:source>/<string:coreonly>")
-def load(source, coreonly):
+@app.route("/load")
+def load():
+    source = request.args.get('source', default="sina")
+    coreonly = request.args.get('coreonly', default="False")
     def generate():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
@@ -159,6 +173,8 @@ def load(source, coreonly):
             north_item = north_result[0]
             history = north_result[1]
             yield '%s %s loaded<br/>' % (north_item[1], str(history.iloc[-1]['date']))
+
+        yield 'Finished<br/>'
 
     return app.response_class(stream_with_context(generate()))
 
@@ -312,3 +328,11 @@ def get_stock(stock_code):
         if stock_code == stock.code:
             return stock
     return None
+
+
+def decorate_line(line: str):
+    if line.find(' for ') > -1:
+        return """<span style="color:blue">%s</span>""" % line
+    if line.find('Last Order') > -1:
+        return """<span style="color:red">%s</span>""" % line
+    return line
