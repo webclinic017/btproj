@@ -1,4 +1,4 @@
-from backtrader.indicators import MovingAverageSimple, RelativeStrengthIndex
+from backtrader.indicators import MovingAverageSimple, AdaptiveMovingAverage, RelativeStrengthIndex, AverageTrueRange
 
 from strategies.base import get_data_name
 from strategies.one_order_strategy import OneOrderStrategy
@@ -8,17 +8,16 @@ REASON_MAIN = 1
 REASON_SUPERLOW = 2
 
 
-class Strategy4(OneOrderStrategy):
+class Strategy4ATR(OneOrderStrategy):
     params = (
-        ('buyperiod', 18),
-        ('sellperiod', 23),
-        ('minchgpct', 2),
-        ('shouldbuypct', 0),
+        ('buyperiod', 20),
+        ('sellperiod', 20),
+        ('minchgpct', 0),
+        ('shouldbuypct', 0.7),
         ('starttradedt', None),
         ('mode', 2),
         ('rsi', None),
-        ('printlog', True),
-        ('opt', False)
+        ('printlog', True)
     )
 
     def __init__(self):
@@ -31,16 +30,13 @@ class Strategy4(OneOrderStrategy):
         else:
             self.rsi_param = self.params.rsi
 
-        self.sma_list = []
         self.rsi_list = []
+        self.atrbuy_list = []
+        self.atrsell_list = []
         for index in range(len(self.datas)):
             data = self.datas[index]
-            if not self.params.opt:
-                if self.params.buyperiod == self.params.sellperiod:
-                    self.sma_list.append(MovingAverageSimple(data, period=self.params.buyperiod))
-                else:
-                    self.sma_list.append(MovingAverageSimple(data, period=self.params.buyperiod))
-                    self.sma_list.append(MovingAverageSimple(data, period=self.params.sellperiod))
+            self.atrbuy_list.append(AverageTrueRange(data, period=self.params.buyperiod))
+            self.atrsell_list.append(AverageTrueRange(data, period=self.params.sellperiod))
             if self.p.mode != 1:
                 self.rsi_list.append(RelativeStrengthIndex(data, lowerband=self.rsi_param[index][0]))
 
@@ -60,10 +56,10 @@ class Strategy4(OneOrderStrategy):
         if self.params.buyperiod == self.params.sellperiod:
             buy_changes, buy_best_change, buy_best_index \
                 = sell_changes, sell_best_change, sell_best_index \
-                = self.calculate_changes(self.params.buyperiod, 'BuySell')
+                = self.calculate_changes(self.params.buyperiod, self.atrbuy_list, 'BuySell')
         else:
-            buy_changes, buy_best_change, buy_best_index = self.calculate_changes(self.params.buyperiod, 'Buy')
-            sell_changes, sell_best_change, sell_best_index = self.calculate_changes(self.params.sellperiod, 'Sell')
+            buy_changes, buy_best_change, buy_best_index = self.calculate_changes(self.params.buyperiod, self.atrbuy_list, 'Buy')
+            sell_changes, sell_best_change, sell_best_index = self.calculate_changes(self.params.sellperiod, self.atrsell_list, 'Sell')
 
         current_position = -1
         has_operation = False
@@ -116,7 +112,7 @@ class Strategy4(OneOrderStrategy):
                     if self.buy_reason == REASON_SUPERLOW and self.in_market_days >= self.rsi_param[current_position][1]:
                         self.sell_stock(current_position, sell_reason=REASON_SUPERLOW)
 
-    def calculate_changes(self, period, usecase):
+    def calculate_changes(self, period, atr_list, usecase):
         changes = []
         logs = []
         best_index = -1
@@ -125,9 +121,10 @@ class Strategy4(OneOrderStrategy):
         logs.append("Period: %d " % period)
         for index in range(len(self.datas)):
             data = self.datas[index]
+            atr = atr_list[index]
             close_now = data.close[0]
             close_before = data.close[-period]
-            change = (close_now - close_before) / close_before
+            change = (close_now - close_before) / atr[0]
             changes.append(change)
             if self.p.mode != 1:
                 rsi = self.rsi_list[index][0]
