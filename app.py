@@ -174,19 +174,19 @@ def load():
     source = request.args.get('source', default="sina")
     coreonly = request.args.get('coreonly', default="False")
     def generate():
-        yield '<a href="/">Back</a><br/><br/>'
+        yield '<div><a href="/">Back</a></div>'
         for stock in stocks.Stock:
             if coreonly != 'True' or stock.core:
                 history = force_load_stock_history(stock.code, source)
-                yield '%s %s loaded<br/>' % (stock.code, str(history.iloc[-1]['date']))
+                yield '<div>%s %s %s loaded</div>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
 
         north_results = force_load_north()
         for north_result in north_results:
             north_item = north_result[0]
             history = north_result[1]
-            yield '%s %s loaded<br/>' % (north_item[1], str(history.iloc[-1]['date']))
+            yield '<div>%s %s loaded</div>' % (north_item[1], str(history.iloc[-1]['date']))
 
-        yield 'Finished<br/>'
+        yield '<div>Finished</div>'
 
     return app.response_class(stream_with_context(generate()))
 
