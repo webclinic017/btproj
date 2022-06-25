@@ -20,12 +20,20 @@ app = Flask(__name__)
 
 strategies = [
     {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
+        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
         "data_start": 60,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
         "core": True
+    },
+    {
+        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
+        "class": Strategy4,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+        "data_start": 60,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))", "buyperiod": 20, "sellperiod": 20, "minchgpct": 0, "shouldbuypct": 0.7},
+        "core": False
     },
     {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 1",
