@@ -1,10 +1,11 @@
+import os
 import pathlib
 import datetime
 
 import backtrader as bt
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
-from flask import Flask, stream_with_context, request
+from flask import Flask, stream_with_context, request, send_from_directory
 
 import stocks
 from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
@@ -116,6 +117,7 @@ def home():
   margin: 0px 10px;
 }
 </style>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 </head>
 <body>
 <div class="item">
@@ -152,7 +154,20 @@ def daily_strategy(start_date, start_trade_date):
                               starttradedt=start_trade_date, **strategy["args"])
             logs.append('')
     logs = list(map(lambda line: decorate_line(line), logs))
-    return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
+
+    content = """
+<html>
+<head>
+<title>Daily Strategy</title>
+<style>
+</style>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+%s
+</body>
+</html>""" % '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
+    return content
 
 
 @app.route("/log/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
@@ -164,7 +179,20 @@ def daily_strategy_logs(id, start_date, start_trade_date):
     logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
                       starttradedt=start_trade_date, printLog=True, **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
-    return '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
+
+    content = """
+<html>
+<head>
+<title>Daily Strategy</title>
+<style>
+</style>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+%s
+</body>
+</html>""" % ('<a href="/">Back</a><br/><br/>' + "<br/>".join(logs))
+    return content
 
 
 @app.route("/plot/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
@@ -182,19 +210,31 @@ def load():
     source = request.args.get('source', default="sina")
     coreonly = request.args.get('coreonly', default="False")
     def generate():
+        yield """
+<html>
+<head>
+<title>Daily Strategy</title>
+<style>
+</style>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>"""
         yield '<div><a href="/">Back</a></div>'
+        yield '<div><table>'
         for stock in stocks.Stock:
             if coreonly != 'True' or stock.core:
                 history = force_load_stock_history(stock.code, source)
-                yield '<div>%s %s %s loaded</div>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
+                yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td></tr>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
 
         north_results = force_load_north()
         for north_result in north_results:
             north_item = north_result[0]
             history = north_result[1]
-            yield '<div>%s %s loaded</div>' % (north_item[1], str(history.iloc[-1]['date']))
+            yield '<tr><td>%s</td><td>%s</td><td>loaded</td></tr>' % (north_item[1], str(history.iloc[-1]['date']))
 
+        yield '</table></div>'
         yield '<div>Finished</div>'
+        yield """</body></html>"""
 
     return app.response_class(stream_with_context(generate()))
 
@@ -202,6 +242,15 @@ def load():
 @app.route("/datalist")
 def datalist():
     def generate():
+        yield """
+<html>
+<head>
+<title>Daily Strategy</title>
+<style>
+</style>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>"""
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
             yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot</a></h1>' % (
@@ -209,6 +258,7 @@ def datalist():
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_all', 'North All')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sh', 'North Shanghai')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sz', 'North Shenzhen')
+        yield """</body></html>"""
 
     return app.response_class(stream_with_context(generate()))
 
@@ -221,11 +271,15 @@ def data(stock_code, rows):
     def generate():
         lines = pathlib.Path(get_datafile_name(stock_code)).read_text().split("\n")
         lines = [lines[0]] + lines[-rows:][::-1]
-        yield '<html>'
-        yield '<style>'
-        yield 'td {text-align: right;}'
-        yield '</style>'
-        yield '<body>'
+        yield """
+<html>
+<head>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<style>
+td {text-align: right;}
+</style>
+</head>
+<body>"""
         if stock is not None:
             yield '<p>' + stock.cnname + '</p>'
         yield '<p>' + stock_code + '</p>'
