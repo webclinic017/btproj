@@ -410,6 +410,9 @@ def get_stock(stock_code):
 
 
 def decorate_line(line: str):
+    if line.find('Last Order') > -1:
+        if line.rfind(line[:10]) == 0:
+            return """<span style="color:gray">%s</span>""" % line
     if line.find(' for ') > -1:
         return """<span style="color:blue">%s</span>""" % line
     if line.find('BUY CREATE') > -1 or line.find('BUY EXECUTED') > -1:
