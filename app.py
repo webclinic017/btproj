@@ -1,11 +1,10 @@
-import os
-import pathlib
 import datetime
+import pathlib
 
 import backtrader as bt
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
-from flask import Flask, stream_with_context, request, send_from_directory
+from flask import Flask, stream_with_context, request
 
 import stocks
 from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
@@ -118,6 +117,7 @@ def home():
 }
 </style>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>
 <div class="item">
@@ -162,6 +162,7 @@ def daily_strategy(start_date, start_trade_date):
 <style>
 </style>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>
 %s
@@ -187,6 +188,7 @@ def daily_strategy_logs(id, start_date, start_trade_date):
 <style>
 </style>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>
 %s
@@ -217,6 +219,7 @@ def load():
 <style>
 </style>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>"""
         yield '<div><a href="/">Back</a></div>'
@@ -249,6 +252,7 @@ def datalist():
 <style>
 </style>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>"""
         yield '<a href="/">Back</a><br/><br/>'
@@ -275,6 +279,7 @@ def data(stock_code, rows):
 <html>
 <head>
 <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 <style>
 td {text-align: right;}
 </style>
@@ -407,6 +412,8 @@ def get_stock(stock_code):
 def decorate_line(line: str):
     if line.find(' for ') > -1:
         return """<span style="color:blue">%s</span>""" % line
-    if line.find('Last Order') > -1:
+    if line.find('BUY CREATE') > -1 or line.find('BUY EXECUTED') > -1:
+        return """<span style="color:green">%s</span>""" % line
+    if line.find('OPERATION PROFIT') > -1 or line.find('SELL CREATE') > -1 or line.find('SELL EXECUTED') > -1:
         return """<span style="color:red">%s</span>""" % line
     return line
