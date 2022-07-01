@@ -130,7 +130,8 @@ def home():
     Load Latest Data 
     <a class="sublink" href="load?source=sina&coreonly=False">Sina All</a>
     <a class="sublink" href="load?source=sina&coreonly=True">Sina Core Only</a>
-    <a class="sublink" href="load?source=sina&coreonly=True">Tencent All</a>
+    <a class="sublink" href="load?source=tx&coreonly=False">Tencent All</a>
+    <a class="sublink" href="load?source=tx&coreonly=True">Tencent Core Only</a>
 </div>
 <div class="item">
     <a href="datalist">Show Data List</a>
