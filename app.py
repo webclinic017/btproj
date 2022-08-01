@@ -82,7 +82,7 @@ strategies = [
         "data_start": 60,
         "args": {"periodbull": 250, "highpercentbull": 0.8, "lowpercentbull": 0.4, "maxdrawbackbull": 0.05,
                  "periodbear": 120, "highpercentbear": 0.9, "lowpercentbear": 0.2, "maxdrawbackbear": 0.1,
-                 "smaperiod": 10},
+                 "smaperiod": 10, "modehalf": False},
         "core": True
     },
     {

@@ -29,6 +29,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         ('rsilow', 25),
         ('rsidays', 5),
         ('mode', 3),
+        ('modehalf', True),
         ('printlog', True)
     )
 
@@ -37,6 +38,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         self.north_history = loader.load_north_single(self.params.market)
         self.rsi = RelativeStrengthIndex(upperband=self.params.rsihigh, lowerband=self.params.rsilow)
         self.north = NorthValue(market=self.params.market)
+        self.half = False
 
     def next(self):
         if self.params.starttradedt is not None:
@@ -96,12 +98,28 @@ class StrategyNorthWithSMA(OneOrderStrategy):
                 if no_north_today:
                     self.log('no north today sell')
                 self.sell_stock(sell_reason=REASON_MAIN)
+                self.half = False
+                has_operation = True
+            elif self.p.modehalf and north_value_today > north_value_high and self.half:
+                if no_north_today:
+                    self.log('no north today buy')
+                size = int(self.broker.get_cash() / self.data.close[0] * 0.95)
+                self.buy_stock(size=size, buy_reason=REASON_MAIN)
+                self.log('second half')
+                self.half = False
                 has_operation = True
         else:
             if north_value_today > north_value_high:
                 if no_north_today:
                     self.log('no north today buy')
-                self.buy_stock(buy_reason=REASON_MAIN)
+                size = None
+                self.half = False
+                if self.p.modehalf:
+                    if trend == 'bear':
+                        size = int(self.broker.get_cash() / 2 / self.data.close[0])
+                        self.half = True
+                        self.log('first half')
+                self.buy_stock(size=size, buy_reason=REASON_MAIN)
                 has_operation = True
 
         if self.p.mode == 3:
