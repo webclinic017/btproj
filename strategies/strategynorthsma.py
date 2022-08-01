@@ -30,6 +30,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
         ('rsidays', 5),
         ('mode', 3),
         ('modehalf', True),
+        ('halfrate', 10),
         ('printlog', True)
     )
 
@@ -116,7 +117,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
                 self.half = False
                 if self.p.modehalf:
                     if trend == 'bear':
-                        size = int(self.broker.get_cash() / 2 / self.data.close[0])
+                        size = int(self.broker.get_cash() / self.p.halfrate / self.data.close[0])
                         self.half = True
                         self.log('first half')
                 self.buy_stock(size=size, buy_reason=REASON_MAIN)
