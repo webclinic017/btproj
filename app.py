@@ -276,6 +276,7 @@ def data(stock_code, rows):
     def generate():
         lines = pathlib.Path(get_datafile_name(stock_code)).read_text().split("\n")
         lines = [lines[0]] + lines[-rows:][::-1]
+        count = 0
         yield """
 <html>
 <head>
@@ -293,11 +294,13 @@ td {text-align: right;}
         for line in lines:
             if len(line) > 0:
                 yield "<tr>"
+                yield "<td>%d</td>" % count
                 for item in line.split(","):
                     yield '<td>'
                     yield item
                     yield "</td>"
                 yield "</tr>"
+                count = count + 1
         yield "</table>"
         yield "</body></html>"
 
