@@ -24,27 +24,33 @@ def force_load_stock_history(stock_code, source='sina'):
     return history
 
 
-def load_stock_history(stock_code, start=None, end=None):
+def load_stock_history(stock_code, start=None, end=None, preview=False):
     filename = get_datafile_name(stock_code)
     try:
         history = pd.read_csv(filename)
     except FileNotFoundError:
         history = force_load_stock_history(stock_code)
-    return process_stock_history(history, start, end)
+    return process_stock_history(history, start, end, preview)
 
 
-def process_stock_history(df, start=None, end=None):
+def process_stock_history(df, start=None, end=None, preview=False):
     df['date_raw'] = df['date']
     df[['date']] = df[['date']].apply(pd.to_datetime)
     df.set_index(keys=['date'], inplace=True)
+    result_df = None
     if start is None and end is None:
-        return df
+        result_df = df
     elif start is None and end is not None:
-        return df[:end]
+        result_df = df[:end]
     elif start is not None and end is None:
-        return df[start:]
+        result_df = df[start:]
     else:
-        return df.loc[start:end]
+        result_df = df.loc[start:end]
+    if preview:
+        last_date = df.tail(1).index.item()
+        new_date = last_date + datetime.timedelta(days=1)
+        result_df.loc[new_date] = result_df.loc[last_date]
+    return result_df
 
 
 def force_load_north():
@@ -55,14 +61,14 @@ def force_load_north():
     return result
 
 
-def load_north_single(type, start=None, end=None):
+def load_north_single(type, start=None, end=None, preview=False):
     filename = get_datafile_name("north_%s" % type)
     try:
         history = pd.read_csv(filename)
     except FileNotFoundError:
         force_load_north()
         history = pd.read_csv(filename)
-    return process_stock_history(history, start, end)
+    return process_stock_history(history, start, end, preview)
 
 
 def force_load_north_single(type, indicator):
@@ -91,14 +97,14 @@ def force_load_north_2():
     force_load_north_2_single('sz', '深股通')
 
 
-def load_north_2_single(type, start=None, end=None):
+def load_north_2_single(type, start=None, end=None, preview=False):
     filename = get_datafile_name("north_2_%s" % type)
     try:
         history = pd.read_csv(filename)
     except FileNotFoundError:
         force_load_north_2()
         history = pd.read_csv(filename)
-    return process_stock_history(history, start, end)
+    return process_stock_history(history, start, end, preview)
 
 
 def force_load_north_2_single(type, indicator):
@@ -128,20 +134,20 @@ def force_load_market_pe_history_single(market):
     return history
 
 
-def load_market_pe_single(market, start=None, end=None):
+def load_market_pe_single(market, start=None, end=None, preview=False):
     filename = get_datafile_name('market_pe_' + market)
     try:
         history = pd.read_csv(filename)
     except FileNotFoundError:
         force_load_market_pe_history()
         history = pd.read_csv(filename)
-    return process_stock_history(history, start, end)
+    return process_stock_history(history, start, end, preview)
 
 
-def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True):
+def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True, preview=False):
     datas = []
     for stock in stocks:
-        df = load_stock_history(stock.code, start, end)
+        df = load_stock_history(stock.code, start, end, preview)
         data = bt.feeds.PandasData(dataname=df)
         if cnname:
             cerebro.adddata(data, name=stock.cnname)

@@ -10,11 +10,13 @@ class Stock(enum.Enum):
     SZ50 = ('SZ50', 'sh000016', '上证50', True)
     CYB = ('CYB', 'sz399006', '创业板', True)
     KC50 = ('KC50', 'sh000688', '科创50', True)
+    ZZ1000 = ('ZZ1000', 'sh000852', '中证1000', True)
     HS300ETF = ('HS300ETF', 'sh510310', '沪深300ETF', True)
     HS300ETF_2 = ('HS300ETF_2', 'sh510300', '沪深300ETF2', True)
     CYB50ETF = ('CYB50ETF', 'sz159949', '创业板50ETF', True)
     ZZ500ETF = ('ZZ500ETF', 'sh510500', '中证500ETF', True)
     A50ETF = ('A50ETF', 'sz159602', 'A50ETF', True)
+    ZZ1000ETF = ('ZZ1000ETF', 'sh512100', '中证1000ETF', True)
 
     ZGHLWETF = ('ZGHLWETF', 'sh513050', '中概互联ETF')
     ZQETF = ('ZQETF', 'sh512880', '证券ETF')

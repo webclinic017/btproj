@@ -28,6 +28,15 @@ strategies = [
         "core": True
     },
     {
+        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args Preview",
+        "class": Strategy4,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+        "data_start": 60,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
+        "core": True,
+        "preview": True
+    },
+    {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
@@ -152,7 +161,7 @@ def daily_strategy(start_date, start_trade_date):
         if coreonly != 'True' or strategy["core"]:
             logs.append(strategy["label"])
             logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                              starttradedt=start_trade_date, **strategy["args"])
+                              starttradedt=start_trade_date, preview=strategy.get("preview", False), **strategy["args"])
             logs.append('')
     logs = list(map(lambda line: decorate_line(line), logs))
 
@@ -179,7 +188,8 @@ def daily_strategy_logs(id, start_date, start_trade_date):
     strategy = strategies[id]
     logs = [strategy["label"]]
     logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                      starttradedt=start_trade_date, printLog=True, **strategy["args"])
+                      starttradedt=start_trade_date, printLog=True, preview=strategy.get("preview", False),
+                      **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
 
     content = """
@@ -319,7 +329,7 @@ def dataplot(stock_code, start_date, end_date):
     return html
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, **kwargs):
+def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, preview=False, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -329,7 +339,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
-    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, preview=preview)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
