@@ -2,6 +2,8 @@ import datetime
 import pathlib
 
 import backtrader as bt
+import matplotlib
+import quantstats
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context, request
@@ -110,7 +112,7 @@ def home():
     strategy_contents = ""
     for i in range(len(strategies)):
         strategy = strategies[i]
-        strategy_contents += """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a></div>""" % (strategy["label"], i, i)
+        strategy_contents += """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i)
 
     content = """
 <html>
@@ -218,10 +220,21 @@ def daily_strategy_plot(id, start_date, start_trade_date):
     return html
 
 
+@app.route("/pyfolio/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
+@app.route('/pyfolio/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
+@app.route('/pyfolio/<int:id>/<string:start_date>/<string:start_trade_date>')
+def daily_strategy_pyfolio(id, start_date, start_trade_date):
+    strategy = strategies[id]
+    html = run_pyfolio(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
+                    starttradedt=start_trade_date, printLog=False, title=strategy["label"], **strategy["args"])
+    return html
+
+
 @app.route("/load")
 def load():
     source = request.args.get('source', default="sina")
     coreonly = request.args.get('coreonly', default="False")
+
     def generate():
         yield """
 <html>
@@ -345,9 +358,6 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
 
-    cerebro.addobserver(Broker)
-    cerebro.addobservermulti(BuySell, bardist=0)
-    cerebro.addobservermulti(RelativeValue, starttradedt=start)
     if len(datas) == 1:
         cerebro.addobserver(Trades)
     else:
@@ -364,7 +374,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
 
 
 def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, **kwargs):
-    cerebro = bt.Cerebro()
+    cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
 
@@ -379,7 +389,13 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
 
+    cerebro.addobserver(Broker)
+    cerebro.addobservermulti(BuySell, bardist=0)
     cerebro.addobservermulti(RelativeValue, starttradedt=starttradedt)
+    if len(stocks) == 1:
+        cerebro.addobserver(Trades)
+    else:
+        cerebro.addobserver(DataTrades)
 
     cerebro.run()
 
@@ -393,8 +409,47 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     return pathlib.Path(filename).read_text()
 
 
+def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None, **kwargs):
+    cerebro = bt.Cerebro(stdstats=False)
+
+    strategy_class = strategy
+
+    if starttradedt is None:
+        starttradedt = start
+
+    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
+
+    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+
+    cerebro.broker.setcash(1000000.0)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
+    cerebro.broker.setcommission(commission=0.00025)
+
+    cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
+
+    results = cerebro.run()
+
+    portfolio_stats = results[0].analyzers.getbyname('PyFolio')
+    returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
+    returns.index = returns.index.tz_convert(None)
+
+    folder = 'report'
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+
+    filename = folder + '/app.html'
+
+    matplotlib.pyplot.switch_backend('Agg')
+
+    quantstats.reports.html(
+        returns,
+        output=filename,
+        title=title)
+
+    return pathlib.Path(filename).read_text()
+
+
 def run_data_plot(stocks, start=None, end=None, data_start=0):
-    cerebro = bt.Cerebro()
+    cerebro = bt.Cerebro(stdstats=False)
 
     cerebro.addstrategy(StrategyDisplay)
 
