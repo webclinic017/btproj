@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 
 import backtrader as bt
@@ -10,7 +11,9 @@ from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy0 import Strategy0
 from strategies.strategy2 import Strategy2
+from strategies.strategy2SMA import Strategy2SMA
 from strategies.strategy4 import Strategy4
+from strategies.strategy4ATR import Strategy4ATR
 from strategies.strategy5 import Strategy5
 from strategies.strategy6 import Strategy6
 from strategies.strategySMA import StrategySMA
@@ -25,7 +28,8 @@ from strategies.strategynorthsma import StrategyNorthWithSMA
 pd.options.mode.chained_assignment = None
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, benchmark=False, **kwargs):
+def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=True, printlog=True, benchmark=False,
+        preview=False, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -35,7 +39,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
-    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, cnname=False)
+    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, cnname=False, preview=preview)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -76,7 +80,8 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
             title=strategy_class.__name__)
 
     if plot:
-        cerebro.plot()
+        # cerebro.plot(style='candle', barup='red', bardown='green')
+        cerebro.plot(start=datetime.datetime.strptime(start, "%Y-%m-%d"))
 
 
 # start, end = '2014-06-18', None       #从开始到现在
@@ -106,17 +111,36 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2021-08-25', data_start=60, plot=True, printlog=False, preview=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF], start='2017-08-25', data_start=60, plot=True, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5), (24, 5)))
 # run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=1)
-run(StrategyNorth, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
-run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
-run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
-run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=True, printlog=False, market='sh', mode=3)
-run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=True, printlog=False, market='sh', mode=3,
-    periodbull=250, highpercentbull=0.8, lowpercentbull=0.4, maxdrawbackbull=0.05, periodbear=120, highpercentbear=0.9, lowpercentbear=0.2, maxdrawbackbear=0.1, smaperiod=10)
+# run(StrategyNorth, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh')
+# run(StrategyNorth, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh')
+run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3, halfrate=10)
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, market='sh', mode=3, modehalf=False)
+run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3)
+# run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=3,
+#     periodbull=250, highpercentbull=0.8, lowpercentbull=0.4, maxdrawbackbull=0.05, periodbear=120, highpercentbear=0.9, lowpercentbear=0.2, maxdrawbackbear=0.1, smaperiod=10)
+
+# run(StrategyBias, [Stock.HS300ETF], start='2017-08-25', data_start=365, plot=True, printlog=False)
+
+# run(Strategy2SMA, [Stock.CYB50], start='2016-08-25', data_start=120, plot=True, printlog=False, smaperiodfast=10, smaperiodslow1=30, smaperiodslow2=30, mode=2, atrratio=1)
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2016-08-25', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+# run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2016-08-25', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)), buyperiod=21, sellperiod=16, minchgpct=0, shouldbuypct=0)
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-10-01', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)), sellperiod=20, minchgpct=0, shouldbuypct=0.7)
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-10-01', data_start=60, plot=False, printlog=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)), buyperiod=18, sellperiod=23, minchgpct=2, shouldbuypct=0)
+#
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-10-01', data_start=60, plot=False, printlog=False, mode=1, buyperiod=20, sellperiod=20, minchgpct=0, shouldbuypct=0.7)
+# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2021-10-01', data_start=60, plot=False, printlog=False, mode=1, buyperiod=18, sellperiod=23, minchgpct=2, shouldbuypct=0)
+
+# run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2017-08-25', data_start=60, plot=True, printlog=True, market='sh', mode=3)
+
+# run(Strategy2SMA, [Stock.CYB50], start='2015-08-25', data_start=120, plot=True, printlog=False, smaperiodfast=10, smaperiodslow1=30, smaperiodslow2=30, mode=3, atrratio=1)
+# run(Strategy2SMA, [Stock.CYB50], start='2015-08-25', data_start=120, plot=True, printlog=False, smaperiodfast=10, smaperiodslow1=30, smaperiodslow2=30, mode=3, atrratio=2)
 # run(StrategyNorthWithSMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=True, market='sh', mode=1)
 # run(StrategyNorthWithSMA, [Stock.A50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, market='sh', mode=1)
-# run(StrategySMA, [Stock.CYB50ETF], start='2021-08-25', data_start=60, plot=False, printlog=False, mode=1)
+# run(StrategySMA, [Stock.CYB50ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, mode=1)
+# run(StrategySMA, [Stock.CYB50], start='2014-08-25', data_start=60, plot=True, printlog=False, mode=1)
 
 # run(StrategyNorth5, [Stock.CYB50ETF], start='2020-03-20', data_start=365, plot=True, printlog=False, market='sh')
 
