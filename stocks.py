@@ -17,6 +17,7 @@ class Stock(enum.Enum):
     ZZ500ETF = ('ZZ500ETF', 'sh510500', '中证500ETF', True)
     A50ETF = ('A50ETF', 'sz159602', 'A50ETF', True)
     ZZ1000ETF = ('ZZ1000ETF', 'sh512100', '中证1000ETF', True)
+    KC50ETF = ('KC50ETF', 'sh588000', '科创50ETF', True)
 
     ZGHLWETF = ('ZGHLWETF', 'sh513050', '中概互联ETF')
     ZQETF = ('ZQETF', 'sh512880', '证券ETF')

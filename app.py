@@ -25,7 +25,7 @@ strategies = [
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 60,
+        "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
         "core": True
     },
@@ -33,8 +33,25 @@ strategies = [
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args Preview",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 60,
+        "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
+        "core": True,
+        "preview": True
+    },
+    {
+        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/KC50ETF mode 2 New Args",
+        "class": Strategy4,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
+        "data_start": 30,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))"},
+        "core": True
+    },
+    {
+        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/KC50ETF mode 2 New Args Preview",
+        "class": Strategy4,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
+        "data_start": 30,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))"},
         "core": True,
         "preview": True
     },
@@ -42,16 +59,8 @@ strategies = [
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 60,
+        "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))", "buyperiod": 20, "sellperiod": 20, "minchgpct": 0, "shouldbuypct": 0.7},
-        "core": False
-    },
-    {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 1",
-        "class": Strategy4,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 60,
-        "args": {"mode": 1},
         "core": False
     },
     {
