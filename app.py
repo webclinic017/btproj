@@ -9,7 +9,7 @@ from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context, request
 
 import stocks
-from loader import load_stock_data, force_load_stock_history, force_load_north, get_datafile_name, date_ahead
+from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
@@ -139,10 +139,8 @@ def home():
 %s
 <div class="item">
     Load Latest Data 
-    <a class="sublink" href="load?source=sina&coreonly=False">Sina All</a>
-    <a class="sublink" href="load?source=sina&coreonly=True">Sina Core Only</a>
-    <a class="sublink" href="load?source=tx&coreonly=False">Tencent All</a>
-    <a class="sublink" href="load?source=tx&coreonly=True">Tencent Core Only</a>
+    <a class="sublink" href="load?coreonly=False">All</a>
+    <a class="sublink" href="load?coreonly=True">Core Only</a>
 </div>
 <div class="item">
     <a href="datalist">Show Data List</a>
@@ -232,7 +230,6 @@ def daily_strategy_pyfolio(id, start_date, start_trade_date):
 
 @app.route("/load")
 def load():
-    source = request.args.get('source', default="sina")
     coreonly = request.args.get('coreonly', default="False")
 
     def generate():
@@ -250,7 +247,7 @@ def load():
         yield '<div><table>'
         for stock in stocks.Stock:
             if coreonly != 'True' or stock.core:
-                history = force_load_stock_history(stock.code, source)
+                history = force_load_stock_history_2(stock.code)
                 yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td></tr>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
 
         north_results = force_load_north()

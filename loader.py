@@ -6,6 +6,7 @@ import akshare as ak
 import backtrader as bt
 import pandas as pd
 
+import akfix
 import stocks
 
 
@@ -24,12 +25,21 @@ def force_load_stock_history(stock_code, source='sina'):
     return history
 
 
+def force_load_stock_history_2(stock_code, start_date="19990101", end_date=None, adjust="qfq"):
+    if end_date is None:
+        end_date = str(datetime.date.today()).replace("-", "")
+    filename = get_datafile_name(stock_code)
+    history = akfix.stock_zh_a_hist(code=stock_code, period="daily", start_date=start_date, end_date=end_date, adjust=adjust)
+    history.to_csv(filename)
+    return history
+
+
 def load_stock_history(stock_code, start=None, end=None, preview=False):
     filename = get_datafile_name(stock_code)
     try:
         history = pd.read_csv(filename)
     except FileNotFoundError:
-        history = force_load_stock_history(stock_code)
+        history = force_load_stock_history_2(stock_code)
     return process_stock_history(history, start, end, preview)
 
 
@@ -165,7 +175,7 @@ def date_ahead(date: str, days: int):
 
 if __name__ == '__main__':
     for stock in stocks.Stock:
-        history = force_load_stock_history(stock.code)
+        history = force_load_stock_history_2(stock.code)
         print('%s %s loaded' % (stock.code, str(history.iloc[-1]['date'])))
 
     north_results = force_load_north()
