@@ -9,13 +9,13 @@ REASON_SUPERHIGH = 3
 class StrategySMA(OneOrderStrategy):
 
     params = (
-        ('smaperiod', 30),
+        ('smaperiod', 10),
         ('devfactor', 1.5),
         ('daystobuy', 8),
-        ('daystosell', 2),
+        ('daystosell', 4),
         ('starttradedt', None),
-        ('rsihigh', 74),
-        ('rsilow', 25),
+        ('rsihigh', 75),
+        ('rsilow', 24),
         ('rsidays', 5),
         ('mode', 1),
         ('printlog', True)
