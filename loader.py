@@ -1,5 +1,6 @@
 import datetime
 import pathlib
+from decimal import Decimal
 from typing import List
 
 import akshare as ak
@@ -13,6 +14,11 @@ import stocks
 def get_datafile_name(stock_code):
     parent = pathlib.Path(__file__).parent
     return str(parent.joinpath("data/daily/"+stock_code+"_data.csv"))
+
+
+def get_accu_datafile_name(stock_code):
+    parent = pathlib.Path(__file__).parent
+    return str(parent.joinpath("data/daily/"+stock_code+"_accu_data.csv"))
 
 
 def force_load_stock_history(stock_code, source='sina'):
@@ -154,6 +160,33 @@ def load_market_pe_single(market, start=None, end=None, preview=False):
     return process_stock_history(history, start, end, preview)
 
 
+def force_load_etf_accu_history(stock_code, start_date="19990101", end_date=None):
+    if end_date is None:
+        end_date = str(datetime.date.today()).replace("-", "")
+    filename = get_accu_datafile_name(stock_code)
+    loaded_history = ak.fund_etf_fund_info_em(fund=stock_code[2:], start_date=start_date, end_date=end_date)
+
+    history = loaded_history.rename(columns={'单位净值': 'unit', '累计净值': 'accu', '日增长率': 'change_rate', '净值日期': 'date'})
+    history.drop(columns=['申购状态', '赎回状态'], inplace=True)
+
+    latest_unit = history.iloc[0]['unit']
+    latest_accu = history.iloc[0]['accu']
+    convert_rate = latest_unit / latest_accu
+    history['accu_qfq'] = history['accu'] * convert_rate
+
+    history.to_csv(filename)
+    return history
+
+
+def load_etf_accu_history(stock_code, start=None, end=None, preview=False):
+    filename = get_accu_datafile_name(stock_code)
+    try:
+        history = pd.read_csv(filename)
+    except FileNotFoundError:
+        history = force_load_etf_accu_history(stock_code)
+    return process_stock_history(history, start, end, preview)
+
+
 def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True, preview=False):
     datas = []
     for stock in stocks:
@@ -177,6 +210,9 @@ if __name__ == '__main__':
     for stock in stocks.Stock:
         history = force_load_stock_history_2(stock.code)
         print('%s %s loaded' % (stock.code, str(history.iloc[-1]['date'])))
+        if not stock.is_index:
+            accu_history = force_load_etf_accu_history(stock.code)
+            print('%s %s accu loaded' % (stock.code, str(accu_history.iloc[0]['date'])))
 
     north_results = force_load_north()
     for north_result in north_results:

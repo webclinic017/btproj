@@ -9,7 +9,9 @@ from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context, request
 
 import stocks
-from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2
+from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2, \
+    force_load_etf_accu_history
+from oberservers.AccuValue import AccuValue
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
@@ -258,6 +260,9 @@ def load():
             if coreonly != 'True' or stock.core:
                 history = force_load_stock_history_2(stock.code)
                 yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td></tr>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
+                if not stock.is_index:
+                    accu_history = force_load_etf_accu_history(stock.code)
+                    yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td></tr>' % (stock.code, stock.cnname, str(accu_history.iloc[0]['date']))
 
         north_results = force_load_north()
         for north_result in north_results:
@@ -287,8 +292,12 @@ def datalist():
 <body>"""
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
-            yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot</a></h1>' % (
-                stock.code, stock.cnname, stock.code)
+            if stock.is_index:
+                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot SMA</a></h1>' % (
+                    stock.code, stock.cnname, stock.code)
+            else:
+                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="dataplot/%s?sma=False">Plot Accu</a></h1>' % (
+                    stock.code, stock.cnname, stock.code, stock.code)
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_all', 'North All')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sh', 'North Shanghai')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sz', 'North Shenzhen')
@@ -340,11 +349,16 @@ td {text-align: right;}
 @app.route('/dataplot/<stock_code>/<string:start_date>', defaults={'end_date': None})
 @app.route('/dataplot/<stock_code>/<string:start_date>/<string:end_date>')
 def dataplot(stock_code, start_date, end_date):
+    show_sma = eval(request.args.get('sma', default="True"))
+    show_rsi = eval(request.args.get('rsi', default="True"))
+    show_macd = eval(request.args.get('macd', default="True"))
+    show_accu = eval(request.args.get('accu', default="True"))
+
     if start_date is None:
         today = datetime.date.today()
         start_date = str(today - datetime.timedelta(days=365))
     stock = get_stock(stock_code)
-    html = run_data_plot([stock], start=start_date, end=end_date)
+    html = run_data_plot([stock], start=start_date, end=end_date, show_accu=show_accu, show_sma=show_sma, show_rsi=show_rsi, show_macd=show_macd)
     return html
 
 
@@ -454,16 +468,19 @@ def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttrade
     return pathlib.Path(filename).read_text()
 
 
-def run_data_plot(stocks, start=None, end=None, data_start=0):
+def run_data_plot(stocks, start=None, end=None, data_start=0, show_accu=True, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
-    cerebro.addstrategy(StrategyDisplay)
+    cerebro.addstrategy(StrategyDisplay, **kwargs)
 
     load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
+
+    if show_accu and not stocks[0].is_index:
+        cerebro.addobservermulti(AccuValue, stock_code=stocks[0].code)
 
     cerebro.run()
 
