@@ -7,7 +7,6 @@ import quantstats
 from backtrader.observers import BuySell, Broker, Trades, DataTrades
 
 from loader import load_stock_data, date_ahead
-from oberservers.AccuValue import AccuValue
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy0 import Strategy0
@@ -97,7 +96,6 @@ def run_data_plot(stock, start=None, end=None, data_start=0):
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
-    cerebro.addobservermulti(AccuValue, stock_code=stock.code)
 
     cerebro.run()
 

@@ -11,11 +11,11 @@ from flask import Flask, stream_with_context, request
 import stocks
 from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2, \
     force_load_etf_accu_history
-from oberservers.AccuValue import AccuValue
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
 from strategies.strategySMA import StrategySMA
+from strategies.strategyaccu import StrategyAccuValue
 from strategies.strategydisplay import StrategyDisplay
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorthsma import StrategyNorthWithSMA
@@ -113,6 +113,14 @@ strategies = [
         "stocks": [Stock.CYB50ETF],
         "data_start": 60,
         "args": {"mode": 1},
+        "core": False
+    },
+    {
+        "label": "StrategyAccuValue for KZZETF",
+        "class": StrategyAccuValue,
+        "stocks": [Stock.KZZETF],
+        "data_start": 0,
+        "args": {"stock_code": Stock.KZZETF.code},
         "core": False
     }
 ]
@@ -358,7 +366,8 @@ def dataplot(stock_code, start_date, end_date):
         today = datetime.date.today()
         start_date = str(today - datetime.timedelta(days=365))
     stock = get_stock(stock_code)
-    html = run_data_plot([stock], start=start_date, end=end_date, show_accu=show_accu, show_sma=show_sma, show_rsi=show_rsi, show_macd=show_macd)
+    html = run_data_plot(stock, start=start_date, end=end_date, show_accu=show_accu, show_sma=show_sma,
+                         show_rsi=show_rsi, show_macd=show_macd, stock_code=stock.code)
     return html
 
 
@@ -468,19 +477,16 @@ def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttrade
     return pathlib.Path(filename).read_text()
 
 
-def run_data_plot(stocks, start=None, end=None, data_start=0, show_accu=True, **kwargs):
+def run_data_plot(stock, start=None, end=None, data_start=0, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     cerebro.addstrategy(StrategyDisplay, **kwargs)
 
-    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    load_stock_data(cerebro, [stock], date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
     cerebro.broker.setcommission(commission=0.00025)
-
-    if show_accu and not stocks[0].is_index:
-        cerebro.addobservermulti(AccuValue, stock_code=stocks[0].code)
 
     cerebro.run()
 

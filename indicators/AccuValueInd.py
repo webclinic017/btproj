@@ -3,20 +3,19 @@ import backtrader as bt
 import loader
 
 
-class AccuValue(bt.Observer):
+class AccuValueInd(bt.Indicator):
     lines = (
         'accu',
     )
 
     params = (
         ('stock_code', None),
-        ('start_date', '20000101'),
     )
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
 
     def __init__(self):
-        self.accu_values = loader.load_etf_accu_history(self.params.stock_code, start=self.params.start_date)
+        self.accu_values = loader.load_etf_accu_history(self.params.stock_code)
 
     def next(self):
         today = self.datas[0].datetime.date()
