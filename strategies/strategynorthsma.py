@@ -1,5 +1,3 @@
-import datetime
-
 from backtrader.indicators import RelativeStrengthIndex
 
 import loader
@@ -37,8 +35,12 @@ class StrategyNorthWithSMA(OneOrderStrategy):
     def __init__(self):
         OneOrderStrategy.__init__(self)
         self.north_history = loader.load_north_single(self.params.market)
+        self.north = NorthValue(market=self.p.market, smaperiod=self.p.smaperiod,
+                                periodbull=self.p.periodbull, highpercentbull=self.p.highpercentbull,
+                                lowpercentbull=self.p.lowpercentbull,
+                                periodbear=self.p.periodbear, highpercentbear=self.p.highpercentbear,
+                                lowpercentbear=self.p.lowpercentbear)
         self.rsi = RelativeStrengthIndex(upperband=self.params.rsihigh, lowerband=self.params.rsilow)
-        self.north = NorthValue(market=self.params.market)
         self.half = False
 
     def next(self):
@@ -54,36 +56,15 @@ class StrategyNorthWithSMA(OneOrderStrategy):
             return
 
         if self.data.close[0] >= self.data.close[-self.params.smaperiod]:
-            self.do_next(self.params.periodbull, self.params.highpercentbull, self.params.lowpercentbull,
-                         self.params.maxdrawbackbull, 'bull')
+            trend = 'bull'
+            maxd = self.params.maxdrawbackbull
         else:
-            self.do_next(self.params.periodbear, self.params.highpercentbear, self.params.lowpercentbear,
-                         self.params.maxdrawbackbear, 'bear')
+            trend = 'bear'
+            maxd = self.params.maxdrawbackbear
 
-    def do_next(self, period, highp, lowp, maxd, trend):
-        today = self.datas[0].datetime.date()
-        if period > 0:
-            start_day = today - datetime.timedelta(days=period)
-            north_history = self.north_history[start_day:today]
-        else:
-            north_history = self.north_history[:today]
+        (north_value_today, north_value_low, north_value_high) = (self.north.north[0], self.north.low[0], self.north.high[0])
 
-        no_north_today = False
-        if self.p.mode == 1:
-            north_value_today = north_history.iloc[-1]['value']
-        else:
-            north_history_today = north_history.iloc[-1]['date_raw']
-            if north_history_today == today.__str__():
-                north_value_today = north_history.iloc[-1]['value']
-            else:
-                no_north_today = True
-                north_value_today = 0
-
-        north_history.sort_values(by=['value'], inplace=True)
-        history_len = len(north_history)
-        north_value_low = north_history.iloc[int(history_len * lowp)]['value']
-        north_value_high = north_history.iloc[int(history_len * highp)]['value']
-
+        no_north_today = True if north_value_today == 0 else False
         has_position = True if self.getposition() else False
 
         rsi = self.rsi[0]
