@@ -33,3 +33,9 @@ class StrategyDisplay(bt.Strategy):
             self.macd = MACD()
         if self.p.show_accu and self.p.stock_code is not None:
             self.accu = AccuValueInd(stock_code=self.p.stock_code)
+
+    def next(self):
+        has_position = True if self.getposition() else False
+
+        if not has_position:
+            self.buy()

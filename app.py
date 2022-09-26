@@ -301,11 +301,11 @@ def datalist():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
             if stock.is_index:
-                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot SMA</a></h1>' % (
-                    stock.code, stock.cnname, stock.code)
-            else:
-                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="dataplot/%s?sma=False">Plot Accu</a></h1>' % (
+                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot SMA</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
                     stock.code, stock.cnname, stock.code, stock.code)
+            else:
+                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="dataplot/%s?sma=False">Plot Accu</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
+                    stock.code, stock.cnname, stock.code, stock.code, stock.code)
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_all', 'North All')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sh', 'North Shanghai')
         yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sz', 'North Shenzhen')
@@ -368,6 +368,19 @@ def dataplot(stock_code, start_date, end_date):
     stock = get_stock(stock_code)
     html = run_data_plot(stock, start=start_date, end=end_date, show_accu=show_accu, show_sma=show_sma,
                          show_rsi=show_rsi, show_macd=show_macd, stock_code=stock.code)
+    return html
+
+
+@app.route("/datapyfolio/<stock_code>", defaults={'start_date': None, 'end_date': None})
+@app.route('/datapyfolio/<stock_code>/<string:start_date>', defaults={'end_date': None})
+@app.route('/datapyfolio/<stock_code>/<string:start_date>/<string:end_date>')
+def datapyfolio(stock_code, start_date, end_date):
+    if start_date is None:
+        today = datetime.date.today()
+        start_date = str(today - datetime.timedelta(days=365))
+    stock = get_stock(stock_code)
+    html = run_data_pyfolio(stock, start=start_date, end=end_date, show_accu=False, show_sma=False,
+                         show_rsi=False, show_macd=False, stock_code=stock.code)
     return html
 
 
@@ -481,6 +494,7 @@ def run_data_plot(stock, start=None, end=None, data_start=0, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     cerebro.addstrategy(StrategyDisplay, **kwargs)
+    cerebro.addobserver(Broker)
 
     load_stock_data(cerebro, [stock], date_ahead(start, data_start), end)
 
@@ -496,6 +510,40 @@ def run_data_plot(stock, start=None, end=None, data_start=0, **kwargs):
 
     b = Bokeh(style='bar', plot_mode='single', filename=filename, show=False, output_mode='save')
     cerebro.plot(b)
+
+    return pathlib.Path(filename).read_text()
+
+
+def run_data_pyfolio(stock, start=None, end=None, data_start=0, **kwargs):
+    cerebro = bt.Cerebro(stdstats=False)
+
+    cerebro.addstrategy(StrategyDisplay, **kwargs)
+
+    load_stock_data(cerebro, [stock], date_ahead(start, data_start), end)
+
+    cerebro.broker.setcash(1000000.0)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
+    cerebro.broker.setcommission(commission=0.00025)
+
+    cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
+
+    results = cerebro.run()
+
+    portfolio_stats = results[0].analyzers.getbyname('PyFolio')
+    returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
+    returns.index = returns.index.tz_convert(None)
+
+    folder = 'report'
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+
+    filename = folder + '/app.html'
+
+    matplotlib.pyplot.switch_backend('Agg')
+
+    quantstats.reports.html(
+        returns,
+        output=filename,
+        title=stock.cnname)
 
     return pathlib.Path(filename).read_text()
 
