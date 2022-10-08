@@ -170,17 +170,19 @@ def home():
     return content
 
 
-@app.route("/daily", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
-@app.route('/daily/<string:start_date>', defaults={'start_trade_date': None})
-@app.route('/daily/<string:start_date>/<string:start_trade_date>')
-def daily_strategy(start_date, start_trade_date):
+@app.route("/daily")
+def daily_strategy():
     coreonly = request.args.get('coreonly', default="False")
+    (start_date, end_date, start_trade_date) = get_request_dates()
     logs = []
     for strategy in strategies:
         if coreonly != 'True' or strategy["core"]:
             logs.append(strategy["label"])
-            logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                              starttradedt=start_trade_date, preview=strategy.get("preview", False), **strategy["args"])
+            try:
+                logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+                                  starttradedt=start_trade_date, preview=strategy.get("preview", False), **strategy["args"])
+            except:
+                logs.append("Error. Maybe no data in this period.")
             logs.append('')
     logs = list(map(lambda line: decorate_line(line), logs))
 
@@ -194,19 +196,38 @@ def daily_strategy(start_date, start_trade_date):
 <link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>
+    <a href="/">Back</a><br/><br/>
+    <form action="/daily">
+        <table>
+            <tr>
+                <td><label for="start">Start:</label></td>
+                <td><input type="text" id="start" name="start" value="%s"></td>
+            </tr>
+            <tr>
+                <td><label for="end">End:</label></td>
+                <td><input type="text" id="end" name="end" value="%s"></td>
+            </tr>
+            <tr>
+                <td><label for="start_trade_date">Start Trade Date:</label></td>
+                <td><input type="text" id="start_trade_date" name="start_trade_date" value="%s"></td>
+            </tr>
+        </table>
+        <input type="hidden" id="coreonly" name="coreonly" value="%s">
+        <input type="submit" value="Submit">
+    </form> 
 %s
 </body>
-</html>""" % '<a href="/">Back</a><br/><br/>' + "<br/>".join(logs)
+</html>""" % (format_none(start_date), format_none(end_date), format_none(start_trade_date), format_none(coreonly), "<br/>".join(logs))
     return content
 
 
-@app.route("/log/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
-@app.route('/log/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
-@app.route('/log/<int:id>/<string:start_date>/<string:start_trade_date>')
-def daily_strategy_logs(id, start_date, start_trade_date):
+@app.route("/log/<int:id>")
+def daily_strategy_logs(id):
+    (start_date, end_date, start_trade_date) = get_request_dates()
+
     strategy = strategies[id]
     logs = [strategy["label"]]
-    logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
+    logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                       starttradedt=start_trade_date, printLog=True, preview=strategy.get("preview", False),
                       **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
@@ -221,29 +242,47 @@ def daily_strategy_logs(id, start_date, start_trade_date):
 <link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
 </head>
 <body>
+    <a href="/">Back</a><br/><br/>
+    <form action="/log/%d">
+        <table>
+            <tr>
+                <td><label for="start">Start:</label></td>
+                <td><input type="text" id="start" name="start" value="%s"></td>
+            </tr>
+            <tr>
+                <td><label for="end">End:</label></td>
+                <td><input type="text" id="end" name="end" value="%s"></td>
+            </tr>
+            <tr>
+                <td><label for="start_trade_date">Start Trade Date:</label></td>
+                <td><input type="text" id="start_trade_date" name="start_trade_date" value="%s"></td>
+            </tr>
+        </table>
+        <input type="submit" value="Submit">
+    </form> 
 %s
 </body>
-</html>""" % ('<a href="/">Back</a><br/><br/>' + "<br/>".join(logs))
+</html>""" % (id, format_none(start_date), format_none(end_date), format_none(start_trade_date), "<br/>".join(logs))
     return content
 
 
-@app.route("/plot/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
-@app.route('/plot/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
-@app.route('/plot/<int:id>/<string:start_date>/<string:start_trade_date>')
-def daily_strategy_plot(id, start_date, start_trade_date):
+@app.route("/plot/<int:id>", defaults={'start_date': '2021-08-25', 'end_date': None})
+@app.route('/plot/<int:id>/<string:start_date>', defaults={'end_date': None})
+@app.route('/plot/<int:id>/<string:start_date>/<string:end_date>')
+def daily_strategy_plot(id, start_date, end_date):
     strategy = strategies[id]
-    html = run_plot(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                    starttradedt=start_trade_date, printLog=False, **strategy["args"])
+    html = run_plot(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+                    starttradedt=start_date, printLog=False, **strategy["args"])
     return html
 
 
-@app.route("/pyfolio/<int:id>", defaults={'start_date': '2021-08-25', 'start_trade_date': None})
-@app.route('/pyfolio/<int:id>/<string:start_date>', defaults={'start_trade_date': None})
-@app.route('/pyfolio/<int:id>/<string:start_date>/<string:start_trade_date>')
-def daily_strategy_pyfolio(id, start_date, start_trade_date):
+@app.route("/pyfolio/<int:id>", defaults={'start_date': '2021-08-25', 'end_date': None})
+@app.route('/pyfolio/<int:id>/<string:start_date>', defaults={'end_date': None})
+@app.route('/pyfolio/<int:id>/<string:start_date>/<string:end_date>')
+def daily_strategy_pyfolio(id, start_date, end_date):
     strategy = strategies[id]
-    html = run_pyfolio(strategy["class"], strategy["stocks"], start=start_date, data_start=strategy["data_start"],
-                    starttradedt=start_trade_date, printLog=False, title=strategy["label"], **strategy["args"])
+    html = run_pyfolio(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+                    starttradedt=start_date, printLog=False, title=strategy["label"], **strategy["args"])
     return html
 
 
@@ -389,6 +428,9 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
 
     strategy_class = strategy
 
+    start = parse_empty(start)
+    end = parse_empty(end)
+    starttradedt = parse_empty(starttradedt)
     if starttradedt is None:
         starttradedt = start
 
@@ -566,3 +608,22 @@ def decorate_line(line: str):
     if line.find('OPERATION PROFIT') > -1 or line.find('SELL CREATE') > -1 or line.find('SELL EXECUTED') > -1:
         return """<span style="color:red">%s</span>""" % line
     return line
+
+
+def format_none(o):
+    if o is None:
+        return ""
+    return o
+
+
+def parse_empty(s):
+    if s == "":
+        return None
+    return s
+
+
+def get_request_dates():
+    start_date = request.args.get('start', default="2021-08-25")
+    start_trade_date = request.args.get('start_trade_date', default=None)
+    end_date = request.args.get('end', default=None)
+    return start_date, end_date, start_trade_date

@@ -63,7 +63,7 @@ def process_stock_history(df, start=None, end=None, preview=False):
     else:
         result_df = df.loc[start:end]
     if preview:
-        last_date = df.tail(1).index.item()
+        last_date = result_df.tail(1).index.item()
         new_date = last_date + datetime.timedelta(days=1)
         result_df.loc[new_date] = result_df.loc[last_date]
     return result_df
