@@ -340,7 +340,7 @@ def datalist():
         yield '<a href="/">Back</a><br/><br/>'
         for stock in stocks.Stock:
             if stock.is_index:
-                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s">Plot SMA</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
+                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
                     stock.code, stock.cnname, stock.code, stock.code)
             else:
                 yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="dataplot/%s?sma=False">Plot Accu</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
