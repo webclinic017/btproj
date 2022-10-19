@@ -38,7 +38,7 @@ if __name__ == "__main__":
         # ('2015-12-01', '2021-07-07'), #1
         ('2017-01-01', '2021-07-07'), #1 ETF
         # ('2018-01-22', '2020-06-30'),
-        ('2016-07-22', '2020-07-07'), #2
+        # ('2016-07-22', '2020-07-07'), #2
         # ('2016-07-22', '2019-01-30'),
         # ('2015-05-01', '2019-01-01'),
         # ('2021-03-20', None), #3
@@ -61,9 +61,9 @@ if __name__ == "__main__":
         # cerebro.optstrategy(Strategy4, buyperiod=[5, 10, 20, 30, 60, 90, 120],
         #                     sellperiod=[5, 10, 20, 30, 60, 120], minchgpct=range(0, 4, 1),
         #                     printlog=False, mode=1, starttradedt=start)
-        # cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
-        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
-        #                     printlog=False, starttradedt=start, opt=True)
+        cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
+                            shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
+                            printlog=False, starttradedt=start, opt=True)
         # cerebro.optstrategy(Strategy4, buyperiod=18, sellperiod=23, minchgpct=range(0, 4, 1),
         #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1],
         #                     rsi="((30, 5), (25, 5), (24, 5))", mode=2,
@@ -94,9 +94,9 @@ if __name__ == "__main__":
         # cerebro.optstrategy(StrategyNorth, period=[250, 500], highpercent=[0.8, 0.9],
         #                     lowpercent=[0.1, 0.2], maxdrawback=[0.02, 0.05, 0.1, 0.2],
         #                     printlog=False)
-        cerebro.optstrategy(StrategySMA, smaperiod=[5, 10, 15, 20], daystobuy=[5, 6, 7, 8, 9, 10, 11, 12, 13],
-                            daystosell=[1, 2, 3, 4, 5], mode=[1], devfactor=[1.5], rsihigh=[70, 75, 80, 85], rsilow=[24, 25, 23, 22],
-                            printlog=False)
+        # cerebro.optstrategy(StrategySMA, smaperiod=[5, 10, 15, 20], daystobuy=[5, 6, 7, 8, 9, 10, 11, 12, 13],
+        #                     daystosell=[1, 2, 3, 4, 5], mode=[1], devfactor=[1.5], rsihigh=[70, 75, 80, 85], rsilow=[24, 25, 23, 22],
+        #                     printlog=False)
         # cerebro.optstrategy(StrategySMA, smaperiod=[20, 30, 40], devfactor=[1.5, 2.0], daystobuy=[3, 4, 5, 6, 7, 8, 9, 10, 11],
         #                     daystosell=[1, 2, 3, 4, 5], rsihigh=[85, 86], rsilow=[30],
         #                     printlog=False)
@@ -123,9 +123,12 @@ if __name__ == "__main__":
         load_stock_data(
             cerebro,
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500],
-            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+            # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.ZZ1000],
+            # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.GZ2000, Stock.ZZ1000],
+            [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
             # [Stock.HS300ETF, Stock.CYB50ETF],
-            [Stock.CYB50ETF],
+            # [Stock.CYB50ETF],
             # [Stock.ZZ500ETF],
             # [Stock.HS300ETF],
             # [Stock.CYB50],
