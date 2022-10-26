@@ -9,6 +9,7 @@ from strategies.strategy2 import Strategy2
 from strategies.strategy2SMA import Strategy2SMA
 from strategies.strategy4 import Strategy4
 from strategies.strategy4ATR import Strategy4ATR
+from strategies.strategy4phase import Strategy4Phase
 from strategies.strategy5 import Strategy5
 from strategies.strategySMA import StrategySMA
 from strategies.strategynorth import StrategyNorth
@@ -61,8 +62,12 @@ if __name__ == "__main__":
         # cerebro.optstrategy(Strategy4, buyperiod=[5, 10, 20, 30, 60, 90, 120],
         #                     sellperiod=[5, 10, 20, 30, 60, 120], minchgpct=range(0, 4, 1),
         #                     printlog=False, mode=1, starttradedt=start)
-        cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
-                            shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
+        # cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
+        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
+        #                     printlog=False, starttradedt=start, opt=True)
+        cerebro.optstrategy(Strategy4Phase, buyperiod=range(17, 23), sellperiod=range(17, 23), minchgpct=range(0, 4, 1),
+                            shouldbuypct=[-0.3, 0, 0.3, 0.5], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
+                            halfrate=[10, 50], backdays=[1, 2, 3, 4, 5],
                             printlog=False, starttradedt=start, opt=True)
         # cerebro.optstrategy(Strategy4, buyperiod=18, sellperiod=23, minchgpct=range(0, 4, 1),
         #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1],
@@ -125,8 +130,8 @@ if __name__ == "__main__":
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500],
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.ZZ1000],
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.GZ2000, Stock.ZZ1000],
-            [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
+            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+            [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
             # [Stock.HS300ETF, Stock.CYB50ETF],
             # [Stock.CYB50ETF],
             # [Stock.ZZ500ETF],

@@ -14,6 +14,7 @@ from strategies.strategy2 import Strategy2
 from strategies.strategy2SMA import Strategy2SMA
 from strategies.strategy4 import Strategy4
 from strategies.strategy4ATR import Strategy4ATR
+from strategies.strategy4phase import Strategy4Phase
 from strategies.strategy5 import Strategy5
 from strategies.strategy6 import Strategy6
 from strategies.strategySMA import StrategySMA
@@ -131,7 +132,10 @@ def run_data_plot(stock, start=None, end=None, data_start=0):
 # stocks = [Stock.KC50]
 # stocks = [Stock.HS300, Stock.KC50]
 
-# run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, preview=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, preview=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
+run(Strategy4Phase, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, preview=False, mode=2,
+    rsi=((30, 5), (25, 5), (24, 5), (24, 5)), buyperiod=18, sellperiod=22, minchgpct=0, shouldbuypct=0.3, halfrate=50, backdays=3)
+run(Strategy4Phase, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF], start='2017-01-01', data_start=60, plot=False, printlog=False, preview=False, mode=2, rsi=((30, 5), (25, 5), (24, 5)))
 # run(Strategy4, [Stock.HS300, Stock.CYB50, Stock.ZZ500], start='2015-01-01', data_start=60, plot=True, printlog=False, preview=False,
 #     mode=2, rsi=((30, 5), (25, 5), (24, 5)), buyperiod=15, sellperiod=21, minchgpct=3, shouldbuypct=-1)
 # run(Strategy4, [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF], start='2021-01-01', end='2022-01-01', data_start=60, plot=False, printlog=True, mode=2, rsi=((30, 5), (25, 5), (24, 5), (20, 5)))
@@ -247,4 +251,4 @@ def run_data_plot(stock, start=None, end=None, data_start=0):
 # run(StrategySMA, [Stock.HS300ETF], start='2017-01-01', end="2022-01-01", data_start=60, plot=True, printlog=False, rsihigh=85, rsilow=30, smaperiod=20, daystobuy=6, daystosell=5, mode=1)
 # run(StrategySMA, [Stock.HS300ETF], start='2017-01-01', end="2022-05-01", data_start=60, plot=True, printlog=False, rsihigh=85, rsilow=30, smaperiod=20, daystobuy=6, daystosell=5, mode=2)
 
-run_data_plot(Stock.ZZ500ETF, start='2020-01-01')
+# run_data_plot(Stock.ZZ500ETF, start='2020-01-01')

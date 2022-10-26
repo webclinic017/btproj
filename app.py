@@ -14,6 +14,7 @@ from loader import load_stock_data, force_load_north, get_datafile_name, date_ah
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
 from strategies.strategy4 import Strategy4
+from strategies.strategy4phase import Strategy4Phase
 from strategies.strategySMA import StrategySMA
 from strategies.strategyaccu import StrategyAccuValue
 from strategies.strategydisplay import StrategyDisplay
@@ -29,11 +30,28 @@ strategies = [
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
         "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
-        "core": True
+        "core": False
     },
     {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args Preview",
         "class": Strategy4,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+        "data_start": 30,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
+        "core": False,
+        "preview": True
+    },
+    {
+        "label": "Strategy4Phase for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
+        "class": Strategy4Phase,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+        "data_start": 30,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
+        "core": True
+    },
+    {
+        "label": "Strategy4Phase for HS300ETF/CYB50ETF/ZZ500ETF mode 2 Preview",
+        "class": Strategy4Phase,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
         "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
@@ -46,7 +64,7 @@ strategies = [
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
         "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))"},
-        "core": True
+        "core": False
     },
     {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/ZZ1000 mode 2 New Args",
