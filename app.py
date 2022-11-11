@@ -175,8 +175,10 @@ def home():
 %s
 <div class="item">
     Load Latest Data 
-    <a class="sublink" href="load?coreonly=False">All</a>
+    <a class="sublink" href="load?coreonly=False&types=all">All</a>
     <a class="sublink" href="load?coreonly=True">Core Only</a>
+    <a class="sublink" href="load?coreonly=False&types=value">Value Only</a>
+    <a class="sublink" href="load?coreonly=False&types=accu">Accu Only</a>
 </div>
 <div class="item">
     <a href="datalist">Show Data List</a>
@@ -306,6 +308,7 @@ def daily_strategy_pyfolio(id, start_date, end_date):
 @app.route("/load")
 def load():
     coreonly = request.args.get('coreonly', default="False")
+    types = request.args.get('types', default="all")
 
     def generate():
         yield """
@@ -322,17 +325,20 @@ def load():
         yield '<div><table>'
         for stock in stocks.Stock:
             if coreonly != 'True' or stock.core:
-                history = force_load_stock_history_2(stock.code)
-                yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td></tr>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
-                if not stock.is_index:
-                    accu_history = force_load_etf_accu_history(stock.code)
-                    yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td></tr>' % (stock.code, stock.cnname, str(accu_history.iloc[0]['date']))
+                if types == 'all' or types == 'value':
+                    history = force_load_stock_history_2(stock.code)
+                    yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td></tr>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
+                if types == 'all' or types == 'accu':
+                    if not stock.is_index:
+                        accu_history = force_load_etf_accu_history(stock.code)
+                        yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td></tr>' % (stock.code, stock.cnname, str(accu_history.iloc[0]['date']))
 
-        north_results = force_load_north()
-        for north_result in north_results:
-            north_item = north_result[0]
-            history = north_result[1]
-            yield '<tr><td>%s</td><td>%s</td><td>loaded</td></tr>' % (north_item[1], str(history.iloc[-1]['date']))
+        if types == 'all' or types == 'value':
+            north_results = force_load_north()
+            for north_result in north_results:
+                north_item = north_result[0]
+                history = north_result[1]
+                yield '<tr><td>%s</td><td>%s</td><td>loaded</td></tr>' % (north_item[1], str(history.iloc[-1]['date']))
 
         yield '</table></div>'
         yield '<div>Finished</div>'
