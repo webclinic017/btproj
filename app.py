@@ -33,30 +33,12 @@ strategies = [
         "core": False
     },
     {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args Preview",
-        "class": Strategy4,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
-        "core": False,
-        "preview": True
-    },
-    {
         "label": "Strategy4Phase for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
         "class": Strategy4Phase,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
         "data_start": 30,
         "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
         "core": True
-    },
-    {
-        "label": "Strategy4Phase for HS300ETF/CYB50ETF/ZZ500ETF mode 2 Preview",
-        "class": Strategy4Phase,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
-        "core": True,
-        "preview": True
     },
     {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/KC50ETF mode 2 New Args",
@@ -148,7 +130,11 @@ def home():
     strategy_contents = ""
     for i in range(len(strategies)):
         strategy = strategies[i]
-        strategy_contents += """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i)
+        if len(strategy['stocks']) > 1:
+            strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="log/%d?preview=True">Preview Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i, i)
+        else:
+            strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i)
+        strategy_contents += strategy_content
 
     content = """
 <html>
@@ -199,7 +185,7 @@ def daily_strategy():
             logs.append(strategy["label"])
             try:
                 logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
-                                  starttradedt=start_trade_date, preview=strategy.get("preview", False), **strategy["args"])
+                                  starttradedt=start_trade_date, **strategy["args"])
             except:
                 logs.append("Error. Maybe no data in this period.")
             logs.append('')
@@ -243,11 +229,12 @@ def daily_strategy():
 @app.route("/log/<int:id>")
 def daily_strategy_logs(id):
     (start_date, end_date, start_trade_date) = get_request_dates()
+    preview = eval(request.args.get('preview', default="False"))
 
     strategy = strategies[id]
     logs = [strategy["label"]]
     logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
-                      starttradedt=start_trade_date, printLog=True, preview=strategy.get("preview", False),
+                      starttradedt=start_trade_date, printLog=True, preview=preview,
                       **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
 
@@ -277,11 +264,12 @@ def daily_strategy_logs(id):
                 <td><input type="text" id="start_trade_date" name="start_trade_date" value="%s"></td>
             </tr>
         </table>
+        <input type="hidden" name="preview" value="%s">
         <input type="submit" value="Submit">
     </form> 
 %s
 </body>
-</html>""" % (id, format_none(start_date), format_none(end_date), format_none(start_trade_date), "<br/>".join(logs))
+</html>""" % (id, format_none(start_date), format_none(end_date), format_none(start_trade_date), str(preview), "<br/>".join(logs))
     return content
 
 
