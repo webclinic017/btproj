@@ -162,6 +162,7 @@ def home():
 <div class="item">
     Load Latest Data 
     <a class="sublink" href="load?coreonly=False&types=all">All</a>
+    <a class="sublink" href="load?coreonly=True&types=value">Compact</a>
     <a class="sublink" href="load?coreonly=True">Core Only</a>
     <a class="sublink" href="load?coreonly=False&types=value">Value Only</a>
     <a class="sublink" href="load?coreonly=False&types=accu">Accu Only</a>

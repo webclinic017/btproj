@@ -4,14 +4,14 @@ import backtrader as bt
 
 
 class Stock(enum.Enum):
-    HS300 = ('HS300', 'sh000300', '沪深300', True, True)
-    ZZ500 = ('ZZ500', 'sh000905', '中证500', True, True)
-    CYB50 = ('CYB50', 'sz399673', '创业板50', True, True)
-    SZ50 = ('SZ50', 'sh000016', '上证50', True, True)
-    CYB = ('CYB', 'sz399006', '创业板', True, True)
-    KC50 = ('KC50', 'sh000688', '科创50', True, True)
-    ZZ1000 = ('ZZ1000', 'sh000852', '中证1000', True, True)
-    GZ2000 = ('GZ2000', 'sz399303', '国证2000', True, True)
+    HS300 = ('HS300', 'sh000300', '沪深300', False, True)
+    ZZ500 = ('ZZ500', 'sh000905', '中证500', False, True)
+    CYB50 = ('CYB50', 'sz399673', '创业板50', False, True)
+    SZ50 = ('SZ50', 'sh000016', '上证50', False, True)
+    CYB = ('CYB', 'sz399006', '创业板', False, True)
+    KC50 = ('KC50', 'sh000688', '科创50', False, True)
+    ZZ1000 = ('ZZ1000', 'sh000852', '中证1000', False, True)
+    GZ2000 = ('GZ2000', 'sz399303', '国证2000', False, True)
 
     HS300ETF = ('HS300ETF', 'sh510310', '沪深300ETF', True, False)
     HS300ETF_2 = ('HS300ETF_2', 'sh510300', '沪深300ETF2', True, False)
