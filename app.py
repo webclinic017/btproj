@@ -274,7 +274,7 @@ def daily_strategy_logs(id):
     return content
 
 
-@app.route("/plot/<int:id>", defaults={'start_date': '2021-08-25', 'end_date': None})
+@app.route("/plot/<int:id>", defaults={'start_date': '2022-12-30', 'end_date': None})
 @app.route('/plot/<int:id>/<string:start_date>', defaults={'end_date': None})
 @app.route('/plot/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_plot(id, start_date, end_date):
@@ -284,7 +284,7 @@ def daily_strategy_plot(id, start_date, end_date):
     return html
 
 
-@app.route("/pyfolio/<int:id>", defaults={'start_date': '2021-08-25', 'end_date': None})
+@app.route("/pyfolio/<int:id>", defaults={'start_date': '2017-01-01', 'end_date': None})
 @app.route('/pyfolio/<int:id>/<string:start_date>', defaults={'end_date': None})
 @app.route('/pyfolio/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_pyfolio(id, start_date, end_date):
@@ -635,7 +635,7 @@ def parse_empty(s):
 
 
 def get_request_dates():
-    start_date = request.args.get('start', default="2021-08-25")
+    start_date = request.args.get('start', default="2022-12-30")
     start_trade_date = request.args.get('start_trade_date', default=None)
     end_date = request.args.get('end', default=None)
     return start_date, end_date, start_trade_date
