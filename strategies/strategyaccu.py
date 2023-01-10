@@ -5,6 +5,8 @@ from strategies.one_order_strategy import OneOrderStrategy
 class StrategyAccuValue(OneOrderStrategy):
     params = (
         ('stock_code', None),
+        ('buy_percent', -0.3),
+        ('sell_percent', -0.5),
         ('starttradedt', None),
         ('printlog', True)
     )
@@ -34,7 +36,7 @@ class StrategyAccuValue(OneOrderStrategy):
         self.last_next_log = next_log
         self.log(next_log)
 
-        if has_position and close_today > accu_today:
+        if has_position and close_today > accu_today * (1 + self.p.buy_percent / 100):
             self.sell_stock()
-        elif not has_position and close_today < accu_today:
+        elif not has_position and close_today < accu_today * (1 + self.p.sell_percent / 100):
             self.buy_stock()
