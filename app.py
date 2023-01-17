@@ -132,13 +132,14 @@ def home():
     for i in range(len(strategies)):
         strategy = strategies[i]
         num_data = len(strategy['stocks'])
+        core_ind = "*" if strategy["core"] else ""
         if num_data > 1:
             pyfolio_links = ''
             for j in range(num_data):
                 pyfolio_links += """<a class="sublink" href="pyfolio/%d?benchmark=%d">PyFolio B%d</a>""" % (i, j, j)
-            strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="log/%d?preview=True">Preview Log</a> <a class="sublink" href="plot/%d">Plot</a>  %s</div>""" % (strategy["label"], i, i, i, pyfolio_links)
+            strategy_content = """<div class="item">%s %s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="log/%d?preview=True">Preview Log</a> <a class="sublink" href="plot/%d">Plot</a>  %s</div>""" % (core_ind, strategy["label"], i, i, i, pyfolio_links)
         else:
-            strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i)
+            strategy_content = """<div class="item">%s %s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (core_ind, strategy["label"], i, i, i)
         strategy_contents += strategy_content
 
     content = """
