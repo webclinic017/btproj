@@ -79,7 +79,8 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 
         quantstats.reports.html(
             returns,
-            output='%s/%s.html' % (folder, filename),
+            output="file",
+            download_filename='%s/%s.html' % (folder, filename),
             title=strategy_class.__name__)
 
     if plot:

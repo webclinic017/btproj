@@ -538,7 +538,8 @@ def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttrade
 
     quantstats.reports.html(
         returns,
-        output=filename,
+        output="file",
+        download_filename=filename,
         title=title)
 
     return pathlib.Path(filename).read_text()
