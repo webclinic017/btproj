@@ -42,7 +42,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, plot=True, report=
 
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
 
-    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, cnname=False, preview=preview)
+    datas, _ = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, cnname=False, preview=preview)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)

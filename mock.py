@@ -101,7 +101,8 @@ def run_mock(strategy, dfs, start=None, plot=True, report=True, printlog=True, b
 
         quantstats.reports.html(
             returns,
-            output='%s/%s.html' % (folder, filename),
+            output="file",
+            download_filename='%s/%s.html' % (folder, filename),
             title=strategy_class.__name__)
 
     if plot:

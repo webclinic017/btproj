@@ -189,6 +189,7 @@ def load_etf_accu_history(stock_code, start=None, end=None, preview=False):
 
 def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True, preview=False):
     datas = []
+    dfs = []
     for stock in stocks:
         df = load_stock_history(stock.code, start, end, preview)
         data = bt.feeds.PandasData(dataname=df)
@@ -197,7 +198,8 @@ def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str,
         else:
             cerebro.adddata(data, name=stock.stockname)
         datas.append(data)
-    return datas
+        dfs.append(df)
+    return datas, dfs
 
 
 def date_ahead(date: str, days: int):

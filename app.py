@@ -13,6 +13,7 @@ from loader import load_stock_data, force_load_north, get_datafile_name, date_ah
     force_load_etf_accu_history
 from oberservers.RelativeValue import RelativeValue
 from stocks import Stock
+from strategies.base import get_data_name
 from strategies.strategy4 import Strategy4
 from strategies.strategy4phase import Strategy4Phase
 from strategies.strategySMA import StrategySMA
@@ -130,8 +131,12 @@ def home():
     strategy_contents = ""
     for i in range(len(strategies)):
         strategy = strategies[i]
-        if len(strategy['stocks']) > 1:
-            strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="log/%d?preview=True">Preview Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i, i)
+        num_data = len(strategy['stocks'])
+        if num_data > 1:
+            pyfolio_links = ''
+            for j in range(num_data):
+                pyfolio_links += """<a class="sublink" href="pyfolio/%d?benchmark=%d">PyFolio B%d</a>""" % (i, j, j)
+            strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="log/%d?preview=True">Preview Log</a> <a class="sublink" href="plot/%d">Plot</a>  %s</div>""" % (strategy["label"], i, i, i, pyfolio_links)
         else:
             strategy_content = """<div class="item">%s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (strategy["label"], i, i, i)
         strategy_contents += strategy_content
@@ -288,9 +293,10 @@ def daily_strategy_plot(id, start_date, end_date):
 @app.route('/pyfolio/<int:id>/<string:start_date>', defaults={'end_date': None})
 @app.route('/pyfolio/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_pyfolio(id, start_date, end_date):
+    benchmark_idx = eval(request.args.get('benchmark', default='0'))
     strategy = strategies[id]
     html = run_pyfolio(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
-                    starttradedt=start_date, printLog=False, title=strategy["label"], **strategy["args"])
+                    starttradedt=start_date, printLog=False, title=strategy["label"], benchmark_idx=benchmark_idx, **strategy["args"])
     return html
 
 
@@ -448,7 +454,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
-    datas = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, preview=preview)
+    datas, _ = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, preview=preview)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -505,7 +511,8 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     return pathlib.Path(filename).read_text()
 
 
-def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None, **kwargs):
+def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None,
+                benchmark_idx=0, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -515,7 +522,7 @@ def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttrade
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
-    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    datas, dfs = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -538,6 +545,8 @@ def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttrade
 
     quantstats.reports.html(
         returns,
+        benchmark=dfs[benchmark_idx]['close'],
+        benchmark_title=get_data_name(datas[benchmark_idx]),
         output="file",
         download_filename=filename,
         title=title)
@@ -597,7 +606,8 @@ def run_data_pyfolio(stock, start=None, end=None, data_start=0, **kwargs):
 
     quantstats.reports.html(
         returns,
-        output=filename,
+        output="file",
+        download_filename=filename,
         title=stock.cnname)
 
     return pathlib.Path(filename).read_text()
