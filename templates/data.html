@@ -15,15 +15,13 @@
     {% endif %}
     <p>{{stock_code}}</p>
     <table border="1" cellspacing="0">
-    {% for count in range(lines | length) %}
+    {% for line in lines %}
         <tr>
-            <td>{{count}}</td>
-            {% for cell in lines[count] %}
+            <td>{{loop.index-1}}</td>
+            {% for cell in line %}
             <td>{{cell}}</td>
             {% endfor %}
         </tr>
-    {% endfor %}
-    {% for line in lines %}
     {% endfor %}
     </table>
 </body>
