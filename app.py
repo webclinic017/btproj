@@ -6,180 +6,22 @@ import matplotlib
 import quantstats
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
-from flask import Flask, stream_with_context, request
+from flask import Flask, stream_with_context, request, render_template
 
 import stocks
+from appstrategies import get_strategies
 from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2, \
     force_load_etf_accu_history
 from oberservers.RelativeValue import RelativeValue
-from stocks import Stock
 from strategies.base import get_data_name
-from strategies.strategy4 import Strategy4
-from strategies.strategy4phase import Strategy4Phase
-from strategies.strategySMA import StrategySMA
-from strategies.strategyaccu import StrategyAccuValue
 from strategies.strategydisplay import StrategyDisplay
-from strategies.strategynorth import StrategyNorth
-from strategies.strategynorthsma import StrategyNorthWithSMA
 
 app = Flask(__name__)
-
-strategies = [
-    {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2 New Args",
-        "class": Strategy4,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
-        "core": False
-    },
-    {
-        "label": "Strategy4Phase for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
-        "class": Strategy4Phase,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))"},
-        "core": True
-    },
-    {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/KC50ETF mode 2 New Args",
-        "class": Strategy4,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))"},
-        "core": False
-    },
-    {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/ZZ1000 mode 2 New Args",
-        "class": Strategy4,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "buyperiod": 15, "sellperiod": 19, "minchgpct": 3, "shouldbuypct": -1, "rsi": "((30, 5), (25, 5), (24, 5), (24, 5))"},
-        "core": True
-    },
-    {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF mode 2",
-        "class": Strategy4,
-        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-        "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5))", "buyperiod": 20, "sellperiod": 20, "minchgpct": 0, "shouldbuypct": 0.7},
-        "core": False
-    },
-    {
-        "label": "StrategyNorth for CYB50ETF",
-        "class": StrategyNorth,
-        "stocks": [Stock.CYB50ETF],
-        "data_start": 0,
-        "args": {},
-        "core": False
-    },
-    {
-        "label": "StrategyNorth for A50ETF",
-        "class": StrategyNorth,
-        "stocks": [Stock.A50ETF],
-        "data_start": 0,
-        "args": {},
-        "core": False
-    },
-    {
-        "label": "StrategyNorthWithSMA for CYB50ETF",
-        "class": StrategyNorthWithSMA,
-        "stocks": [Stock.CYB50ETF],
-        "data_start": 60,
-        "args": {},
-        "core": True
-    },
-    {
-        "label": "StrategyNorthWithSMA for A50ETF",
-        "class": StrategyNorthWithSMA,
-        "stocks": [Stock.A50ETF],
-        "data_start": 60,
-        "args": {},
-        "core": False
-    },
-    {
-        "label": "StrategyNorthWithSMA for A50ETF New Args",
-        "class": StrategyNorthWithSMA,
-        "stocks": [Stock.A50ETF],
-        "data_start": 60,
-        "args": {"periodbull": 250, "highpercentbull": 0.8, "lowpercentbull": 0.4, "maxdrawbackbull": 0.05,
-                 "periodbear": 120, "highpercentbear": 0.9, "lowpercentbear": 0.2, "maxdrawbackbear": 0.1,
-                 "smaperiod": 10, "modehalf": False},
-        "core": True
-    },
-    {
-        "label": "StrategySMA for CYB50ETF",
-        "class": StrategySMA,
-        "stocks": [Stock.CYB50ETF],
-        "data_start": 60,
-        "args": {"mode": 1},
-        "core": False
-    },
-    {
-        "label": "StrategyAccuValue for KZZETF",
-        "class": StrategyAccuValue,
-        "stocks": [Stock.KZZETF],
-        "data_start": 0,
-        "args": {"stock_code": Stock.KZZETF.code},
-        "core": False
-    }
-]
 
 
 @app.route("/")
 def home():
-    strategy_contents = ""
-    for i in range(len(strategies)):
-        strategy = strategies[i]
-        num_data = len(strategy['stocks'])
-        core_ind = "*" if strategy["core"] else ""
-        if num_data > 1:
-            pyfolio_links = ''
-            for j in range(num_data):
-                pyfolio_links += """<a class="sublink" href="pyfolio/%d?benchmark=%d">PyFolio B%d</a>""" % (i, j, j)
-            strategy_content = """<div class="item">%s %s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="log/%d?preview=True">Preview Log</a> <a class="sublink" href="plot/%d">Plot</a>  %s</div>""" % (core_ind, strategy["label"], i, i, i, pyfolio_links)
-        else:
-            strategy_content = """<div class="item">%s %s <a class="sublink" href="log/%d">Log</a> <a class="sublink" href="plot/%d">Plot</a>  <a class="sublink" href="pyfolio/%d">PyFolio</a></div>""" % (core_ind, strategy["label"], i, i, i)
-        strategy_contents += strategy_content
-
-    content = """
-<html>
-<head>
-<title>Daily Strategy</title>
-<style>
-.item {
-  font-size: 30px;
-  margin: 25px 0px;
-}
-.sublink {
-  margin: 0px 10px;
-}
-</style>
-<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
-</head>
-<body>
-<div class="item">
-    Daily Strategy
-    <a class="sublink" href="daily?coreonly=False">All</a>
-    <a class="sublink" href="daily?coreonly=True">Core Only</a>
-</div>
-%s
-<div class="item">
-    Load Latest Data 
-    <a class="sublink" href="load?coreonly=False&types=all">All</a>
-    <a class="sublink" href="load?coreonly=True&types=value">Compact</a>
-    <a class="sublink" href="load?coreonly=True">Core Only</a>
-    <a class="sublink" href="load?coreonly=False&types=value">Value Only</a>
-    <a class="sublink" href="load?coreonly=False&types=accu">Accu Only</a>
-</div>
-<div class="item">
-    <a href="datalist">Show Data List</a>
-</div>
-</body>
-</html>
-    """ % (strategy_contents)
-    return content
+    return render_template('index.html', strategies=get_strategies())
 
 
 @app.route("/daily")
@@ -187,7 +29,7 @@ def daily_strategy():
     coreonly = request.args.get('coreonly', default="False")
     (start_date, end_date, start_trade_date) = get_request_dates()
     logs = []
-    for strategy in strategies:
+    for strategy in get_strategies():
         if coreonly != 'True' or strategy["core"]:
             logs.append(strategy["label"])
             try:
@@ -198,39 +40,12 @@ def daily_strategy():
             logs.append('')
     logs = list(map(lambda line: decorate_line(line), logs))
 
-    content = """
-<html>
-<head>
-<title>Daily Strategy</title>
-<style>
-</style>
-<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
-</head>
-<body>
-    <a href="/">Back</a><br/><br/>
-    <form action="/daily">
-        <table>
-            <tr>
-                <td><label for="start">Start:</label></td>
-                <td><input type="text" id="start" name="start" value="%s"></td>
-            </tr>
-            <tr>
-                <td><label for="end">End:</label></td>
-                <td><input type="text" id="end" name="end" value="%s"></td>
-            </tr>
-            <tr>
-                <td><label for="start_trade_date">Start Trade Date:</label></td>
-                <td><input type="text" id="start_trade_date" name="start_trade_date" value="%s"></td>
-            </tr>
-        </table>
-        <input type="hidden" id="coreonly" name="coreonly" value="%s">
-        <input type="submit" value="Submit">
-    </form> 
-%s
-</body>
-</html>""" % (format_none(start_date), format_none(end_date), format_none(start_trade_date), format_none(coreonly), "<br/>".join(logs))
-    return content
+    return render_template('daily_strategy.html',
+                           start_date=format_none(start_date),
+                           end_date=format_none(end_date),
+                           start_trade_date=format_none(start_trade_date),
+                           coreonly=format_none(coreonly),
+                           logs=logs)
 
 
 @app.route("/log/<int:id>")
@@ -238,53 +53,27 @@ def daily_strategy_logs(id):
     (start_date, end_date, start_trade_date) = get_request_dates()
     preview = eval(request.args.get('preview', default="False"))
 
-    strategy = strategies[id]
+    strategy = get_strategies()[id]
     logs = [strategy["label"]]
     logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                       starttradedt=start_trade_date, printLog=True, preview=preview,
                       **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
 
-    content = """
-<html>
-<head>
-<title>Daily Strategy</title>
-<style>
-</style>
-<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
-</head>
-<body>
-    <a href="/">Back</a><br/><br/>
-    <form action="/log/%d">
-        <table>
-            <tr>
-                <td><label for="start">Start:</label></td>
-                <td><input type="text" id="start" name="start" value="%s"></td>
-            </tr>
-            <tr>
-                <td><label for="end">End:</label></td>
-                <td><input type="text" id="end" name="end" value="%s"></td>
-            </tr>
-            <tr>
-                <td><label for="start_trade_date">Start Trade Date:</label></td>
-                <td><input type="text" id="start_trade_date" name="start_trade_date" value="%s"></td>
-            </tr>
-        </table>
-        <input type="hidden" name="preview" value="%s">
-        <input type="submit" value="Submit">
-    </form> 
-%s
-</body>
-</html>""" % (id, format_none(start_date), format_none(end_date), format_none(start_trade_date), str(preview), "<br/>".join(logs))
-    return content
+    return render_template('daily_strategy_logs.html',
+                           id=id,
+                           start_date=format_none(start_date),
+                           end_date=format_none(end_date),
+                           start_trade_date=format_none(start_trade_date),
+                           preview=str(preview),
+                           logs=logs)
 
 
 @app.route("/plot/<int:id>", defaults={'start_date': '2022-12-30', 'end_date': None})
 @app.route('/plot/<int:id>/<string:start_date>', defaults={'end_date': None})
 @app.route('/plot/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_plot(id, start_date, end_date):
-    strategy = strategies[id]
+    strategy = get_strategies()[id]
     html = run_plot(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                     starttradedt=start_date, printLog=False, **strategy["args"])
     return html
@@ -295,7 +84,7 @@ def daily_strategy_plot(id, start_date, end_date):
 @app.route('/pyfolio/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_pyfolio(id, start_date, end_date):
     benchmark_idx = eval(request.args.get('benchmark', default='0'))
-    strategy = strategies[id]
+    strategy = get_strategies()[id]
     html = run_pyfolio(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                     starttradedt=start_date, printLog=False, title=strategy["label"], benchmark_idx=benchmark_idx, **strategy["args"])
     return html
@@ -345,31 +134,7 @@ def load():
 
 @app.route("/datalist")
 def datalist():
-    def generate():
-        yield """
-<html>
-<head>
-<title>Daily Strategy</title>
-<style>
-</style>
-<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
-</head>
-<body>"""
-        yield '<a href="/">Back</a><br/><br/>'
-        for stock in stocks.Stock:
-            if stock.is_index:
-                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
-                    stock.code, stock.cnname, stock.code, stock.code)
-            else:
-                yield '<h1><a href="data/%s">%s</a> <a href="dataplot/%s?accu=False">Plot SMA</a> <a href="dataplot/%s?sma=False">Plot Accu</a> <a href="datapyfolio/%s">PyFolio</a></h1>' % (
-                    stock.code, stock.cnname, stock.code, stock.code, stock.code)
-        yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_all', 'North All')
-        yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sh', 'North Shanghai')
-        yield '<a href="data/%s"><h1>%s</h1></a>' % ('north_sz', 'North Shenzhen')
-        yield """</body></html>"""
-
-    return app.response_class(stream_with_context(generate()))
+    return render_template('datalist.html', stocks=stocks.Stock)
 
 
 @app.route("/data/<stock_code>", defaults={'rows': 30})
@@ -377,38 +142,12 @@ def datalist():
 def data(stock_code, rows):
     stock = get_stock(stock_code)
 
-    def generate():
-        lines = pathlib.Path(get_datafile_name(stock_code)).read_text().split("\n")
-        lines = [lines[0]] + lines[-rows:][::-1]
-        count = 0
-        yield """
-<html>
-<head>
-<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-<link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
-<style>
-td {text-align: right;}
-</style>
-</head>
-<body>"""
-        if stock is not None:
-            yield '<p>' + stock.cnname + '</p>'
-        yield '<p>' + stock_code + '</p>'
-        yield '<table border="1" cellspacing="0">'
-        for line in lines:
-            if len(line) > 0:
-                yield "<tr>"
-                yield "<td>%d</td>" % count
-                for item in line.split(","):
-                    yield '<td>'
-                    yield item
-                    yield "</td>"
-                yield "</tr>"
-                count = count + 1
-        yield "</table>"
-        yield "</body></html>"
+    lines = pathlib.Path(get_datafile_name(stock_code)).read_text().split("\n")
+    lines = list(filter(lambda l: len(l) > 0, lines))
+    lines = [lines[0]] + lines[-rows:][::-1]
+    lines = list(map(lambda l: l.split(","), lines))
 
-    return app.response_class(stream_with_context(generate()))
+    return render_template('data.html', stock=stock, stock_code=stock_code, lines=lines)
 
 
 @app.route("/dataplot/<stock_code>", defaults={'start_date': None, 'end_date': None})

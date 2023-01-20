@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Strategy</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
+    <style>
+        td {text-align: right;}
+    </style>
+</head>
+<body>
+    {% if stock %}
+    <p>{{stock.cnname}}</p>
+    {% endif %}
+    <p>{{stock_code}}</p>
+    <table border="1" cellspacing="0">
+    {% for count in range(lines | length) %}
+        <tr>
+            <td>{{count}}</td>
+            {% for cell in lines[count] %}
+            <td>{{cell}}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    {% for line in lines %}
+    {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Strategy</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
+</head>
+<body>
+    <a href="/">Back</a><br/><br/>
+    <form action="/daily">
+        <table>
+            <tr>
+                <td><label for="start">Start:</label></td>
+                <td><input type="text" id="start" name="start" value="{{start_date}}"></td>
+            </tr>
+            <tr>
+                <td><label for="end">End:</label></td>
+                <td><input type="text" id="end" name="end" value="{{end_date}}"></td>
+            </tr>
+            <tr>
+                <td><label for="start_trade_date">Start Trade Date:</label></td>
+                <td><input type="text" id="start_trade_date" name="start_trade_date" value="{{start_trade_date}}"></td>
+            </tr>
+        </table>
+        <input type="hidden" id="coreonly" name="coreonly" value="{{coreonly}}">
+        <input type="submit" value="Submit">
+    </form>
+
+    {% for log in logs %}
+    {{ log|safe }}<br/>
+    {% endfor %}
+
+</body>
+</html>

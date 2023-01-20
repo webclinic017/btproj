@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Strategy</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
+</head>
+<body>
+    <a href="/">Back</a><br/><br/>
+
+    {% for stock in stocks %}
+    <h1>
+        <a href="data/{{stock.code}}">{{stock.cnname}}</a>
+        <a href="dataplot/{{stock.code}}?accu=False">Plot SMA</a>
+        {% if not stock.is_index %}
+        <a href="dataplot/{{stock.code}}?sma=False">Plot Accu</a>
+        {% endif %}
+        <a href="datapyfolio/{{stock.code}}">PyFolio</a>
+    </h1>
+    {% endfor %}
+
+    <a href="data/north_all"><h1>North All</h1></a>
+    <a href="data/north_sh"><h1>North Shanghai</h1></a>
+    <a href="data/north_sz"><h1>North Shenzhen</h1></a>
+
+</body>
+</html>

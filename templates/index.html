@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Strategy</title>
+  <style>
+    .item {
+      font-size: 30px;
+      margin: 25px 0px;
+    }
+    .sublink {
+      margin: 0px 10px;
+    }
+  </style>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" href="/static/favicon.ico">
+</head>
+<body>
+  <div class="item">
+      Daily Strategy
+      <a class="sublink" href="daily?coreonly=False">All</a>
+      <a class="sublink" href="daily?coreonly=True">Core Only</a>
+  </div>
+
+  {% for strategy in strategies %}
+  <div class="item">
+      {% if strategy["core"] %}
+      *
+      {% endif %}
+      {{strategy["label"]}}
+
+      <a class="sublink" href="log/{{strategy['id']}}">Log</a>
+
+      {% if (strategy["stocks"] | length) > 1 %}
+      <a class="sublink" href="log/{{strategy['id']}}?preview=True">Preview Log</a>
+      {% endif %}
+
+      <a class="sublink" href="plot/{{strategy['id']}}">Plot</a>
+
+      {% if (strategy["stocks"] | length) > 1 %}
+        {% for s in range(strategy["stocks"] | length) %}
+            <a class="sublink" href="pyfolio/{{strategy['id']}}?benchmark={{s}}">PyFolio B{{s}}</a>
+        {% endfor %}
+      {% else %}
+      <a class="sublink" href="pyfolio/{{strategy['id']}}">PyFolio</a>
+      {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="item">
+      Load Latest Data
+      <a class="sublink" href="load?coreonly=False&types=all">All</a>
+      <a class="sublink" href="load?coreonly=True&types=value">Compact</a>
+      <a class="sublink" href="load?coreonly=True">Core Only</a>
+      <a class="sublink" href="load?coreonly=False&types=value">Value Only</a>
+      <a class="sublink" href="load?coreonly=False&types=accu">Accu Only</a>
+  </div>
+  <div class="item">
+      <a href="datalist">Show Data List</a>
+  </div>
+</body>
+</html>
