@@ -144,9 +144,9 @@ class Strategy4Phase(OneOrderStrategy):
             changes.append(change)
             if self.p.mode != 1:
                 rsi = self.rsi_list[index][0]
-                logs.append('%s / Today %.3f / Change %.5f / RSI %.3f' % (get_data_name(data), close_now, change, rsi))
+                logs.append('%s / Today %.3f / Change %.3f%% / RSI %.3f' % (get_data_name(data), close_now, change * 100, rsi))
             else:
-                logs.append('%s / Today %.3f / Change %.5f' % (get_data_name(data), close_now, change))
+                logs.append('%s / Today %.3f / Change %.3f%%' % (get_data_name(data), close_now, change * 100))
             if change > best_change:
                 best_change = change
                 best_index = index
