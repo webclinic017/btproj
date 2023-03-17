@@ -11,7 +11,7 @@ from flask import Flask, stream_with_context, request, render_template
 import stocks
 from appstrategies import get_strategies
 from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2, \
-    force_load_etf_accu_history
+    force_load_etf_accu_history, force_load_investigation
 from oberservers.RelativeValue import RelativeValue
 from strategies.base import get_data_name
 from strategies.strategydisplay import StrategyDisplay
@@ -125,6 +125,10 @@ def load():
                 history = north_result[1]
                 yield '<tr><td>%s</td><td>%s</td><td>loaded</td></tr>' % (north_item[1], str(history.iloc[-1]['date']))
 
+        if types == 'all' or types == 'investigation':
+            investigation_history = force_load_investigation()
+            yield '<tr><td>机构调研</td><td>%s</td><td>loaded</td></tr>' % (str(investigation_history["公告日期"].iloc[0]))
+
         yield '</table></div>'
         yield '<div>Finished</div>'
         yield """</body></html>"""
@@ -140,11 +144,16 @@ def datalist():
 @app.route("/data/<stock_code>", defaults={'rows': 30})
 @app.route('/data/<stock_code>/<int:rows>')
 def data(stock_code, rows):
+    reverse = request.args.get('reverse', default="True")
+
     stock = get_stock(stock_code)
 
     lines = pathlib.Path(get_datafile_name(stock_code)).read_text().split("\n")
     lines = list(filter(lambda l: len(l) > 0, lines))
-    lines = [lines[0]] + lines[-rows:][::-1]
+    if reverse == 'True':
+        lines = [lines[0]] + lines[-rows:][::-1]
+    else:
+        lines = lines[:rows+1]
     lines = list(map(lambda l: l.split(","), lines))
 
     return render_template('data.html', stock=stock, stock_code=stock_code, lines=lines)

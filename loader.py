@@ -108,6 +108,27 @@ def force_load_north_single(type, indicator):
     return history
 
 
+def force_load_investigation():
+    filename = get_datafile_name("investigation")
+    try:
+        existing_history = pd.read_csv(filename, encoding='utf_8_sig')
+    except FileNotFoundError:
+        existing_history = None
+
+    new_history = ak.stock_jgdy_tj_em(date="20000101")
+
+    if existing_history is None:
+        history = new_history
+    else:
+        existing_history = existing_history[existing_history["公告日期"] <= str(new_history["公告日期"].min())]
+        history = new_history.append(existing_history)
+
+    history.drop(columns=['序号', 'Unnamed: 0', '接待方式', '接待人员', '接待地点'], errors='ignore', inplace=True)
+    history.to_csv(filename, encoding='utf_8_sig')
+
+    return history
+
+
 def force_load_north_2():
     force_load_north_2_single('sh', '沪股通')
     force_load_north_2_single('sz', '深股通')
