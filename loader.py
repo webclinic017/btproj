@@ -123,7 +123,7 @@ def force_load_investigation():
         existing_history = existing_history[existing_history["公告日期"] <= str(new_history["公告日期"].min())]
         history = new_history.append(existing_history)
 
-    history.drop(columns=['序号', 'Unnamed: 0', '接待方式', '接待人员', '接待地点'], errors='ignore', inplace=True)
+    history.drop(columns=['序号', 'Unnamed: 0', '接待方式', '接待人员', '接待地点', '最新价', '涨跌幅'], errors='ignore', inplace=True)
     history.to_csv(filename, encoding='utf_8_sig')
 
     return history
