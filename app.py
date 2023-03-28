@@ -379,6 +379,8 @@ def decorate_line(line: str):
         return """<span style="color:green">%s</span>""" % line
     if line.find('OPERATION PROFIT') > -1 or line.find('SELL CREATE') > -1 or line.find('SELL EXECUTED') > -1:
         return """<span style="color:red">%s</span>""" % line
+    if line.find('Last Log') > -1:
+        return line.replace("TodayClose", """<span style="color:blue">TodayClose</span>""")
     return line
 
 

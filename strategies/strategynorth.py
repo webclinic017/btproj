@@ -50,7 +50,7 @@ class StrategyNorth(OneOrderStrategy):
         north_value_high = north_history.iloc[int(history_len * self.params.highpercent)]['value']
 
         has_position = True if self.getposition() else False
-        self.log('%s / Today %.3f / Low %.3f / High %.5f' % (
+        self.log('%s / Net %.3f / Low %.3f / High %.5f' % (
             has_position, north_value_today, north_value_low, north_value_high))
 
         # if has_position:

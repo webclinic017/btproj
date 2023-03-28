@@ -69,7 +69,7 @@ class StrategyNorthWithSMA(OneOrderStrategy):
 
         rsi = self.rsi[0]
 
-        next_log = '%s / Data %.3f / Today %.3f / Low %.3f / High %.5f / RSI %.3f / Trend %s' % (
+        next_log = '%s / TodayClose %.3f / Net %.3f / Low %.3f / High %.5f / RSI %.3f / Trend %s' % (
             has_position, self.data.close[0], north_value_today, north_value_low, north_value_high, rsi, trend)
         self.last_next_log = next_log
         self.log(next_log)
