@@ -29,9 +29,9 @@ def daily_strategy():
     coreonly = request.args.get('coreonly', default="False")
     (start_date, end_date, start_trade_date) = get_request_dates()
     logs = []
-    for strategy in get_strategies():
+    for strategy_id, strategy in enumerate(get_strategies()):
         if coreonly != 'True' or strategy["core"]:
-            logs.append(strategy["label"])
+            logs.append(make_link(strategy["label"], "log/%d" % strategy_id))
             try:
                 logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                                   starttradedt=start_trade_date, **strategy["args"])
@@ -370,6 +370,11 @@ def get_stock(stock_code):
 
 
 def decorate_line(line: str):
+    if line.startswith('[LINK]'):
+        items = line.split("|")
+        text = items[1]
+        link = items[2]
+        return """<a class="sublink" href="%s">%s</a>""" % (link, text)
     if line.find('Last Order') > -1:
         if line.rfind(line[:10]) == 0:
             return """<span style="color:gray">%s</span>""" % line
@@ -394,6 +399,10 @@ def parse_empty(s):
     if s == "":
         return None
     return s
+
+
+def make_link(text, url):
+    return '[LINK]|%s|%s' % (text, url)
 
 
 def get_request_dates():

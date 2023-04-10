@@ -33,7 +33,7 @@ strategies = [
         "core": False
     },
     {
-        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/ZZ1000 mode 2 New Args",
+        "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/ZZ1000ETF mode 2 New Args",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
         "data_start": 30,
