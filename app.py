@@ -32,6 +32,8 @@ def daily_strategy():
     for strategy_id, strategy in enumerate(get_strategies()):
         if coreonly != 'True' or strategy["core"]:
             logs.append(make_link(strategy["label"], "log/%d" % strategy_id))
+            for stock in strategy["stocks"]:
+                logs.append(make_link(stock.cnname, "dataplot/%s?accu=False" % stock.code))
             try:
                 logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                                   starttradedt=start_trade_date, **strategy["args"])
