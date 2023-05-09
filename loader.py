@@ -65,7 +65,9 @@ def process_stock_history(df, start=None, end=None, preview=False):
     if preview:
         last_date = result_df.tail(1).index.item()
         new_date = last_date + datetime.timedelta(days=1)
-        result_df.loc[new_date] = result_df.loc[last_date]
+        new_series = result_df.loc[last_date].copy()
+        new_series['open'] = new_series['close']
+        result_df.loc[new_date] = new_series
     return result_df
 
 
