@@ -1,9 +1,12 @@
 import datetime
 import pathlib
+import threading
+import time
 
 import backtrader as bt
 import matplotlib
 import quantstats
+import schedule
 from backtrader.observers import Broker, BuySell, Trades, DataTrades
 from backtrader_plotting import Bokeh
 from flask import Flask, stream_with_context, request, render_template
@@ -18,10 +21,19 @@ from strategies.strategydisplay import StrategyDisplay
 
 app = Flask(__name__)
 
+last_update_time = "N/A"
 
 @app.route("/")
 def home():
     return render_template('index.html', strategies=get_strategies())
+
+
+@app.route("/updatetime")
+def updatetime():
+    global last_update_time
+    template = """Now: %s<br>
+Last update: %s"""
+    return template % (format_time(), last_update_time)
 
 
 @app.route("/daily")
@@ -412,3 +424,54 @@ def get_request_dates():
     start_trade_date = request.args.get('start_trade_date', default=None)
     end_date = request.args.get('end', default=None)
     return start_date, end_date, start_trade_date
+
+
+def run_continuously(interval=1):
+    """Continuously run, while executing pending jobs at each
+    elapsed time interval.
+    @return cease_continuous_run: threading. Event which can
+    be set to cease continuous run. Please note that it is
+    *intended behavior that run_continuously() does not run
+    missed jobs*. For example, if you've registered a job that
+    should run every minute and you set a continuous run
+    interval of one hour then your job won't be run 60 times
+    at each interval but only once.
+    """
+    cease_continuous_run = threading.Event()
+
+    class ScheduleThread(threading.Thread):
+        @classmethod
+        def run(cls):
+            while not cease_continuous_run.is_set():
+                schedule.run_pending()
+                time.sleep(interval)
+
+    continuous_thread = ScheduleThread()
+    continuous_thread.start()
+    return cease_continuous_run
+
+
+def log(msg):
+    print(format_time() + " " + msg)
+
+
+def format_time():
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def background_job():
+    global last_update_time
+    log('background_job start')
+    try:
+        for stock in stocks.Stock:
+            force_load_stock_history_2(stock.code)
+        force_load_north()
+        last_update_time = format_time()
+        log('background_job finish')
+    except:
+        log('background_job error')
+
+
+schedule.every(30).minutes.do(background_job)
+
+run_continuously(interval=300)
