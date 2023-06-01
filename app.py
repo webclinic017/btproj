@@ -54,12 +54,15 @@ def daily_strategy():
             logs.append('')
     logs = list(map(lambda line: decorate_line(line), logs))
 
+    global last_update_time
     return render_template('daily_strategy.html',
                            start_date=format_none(start_date),
                            end_date=format_none(end_date),
                            start_trade_date=format_none(start_trade_date),
                            coreonly=format_none(coreonly),
-                           logs=logs)
+                           logs=logs,
+                           time_now=format_time(),
+                           time_last_update=last_update_time)
 
 
 @app.route("/log/<int:id>")
@@ -474,4 +477,4 @@ def background_job():
 
 schedule.every(30).minutes.do(background_job)
 
-run_continuously(interval=300)
+run_continuously(interval=60)
