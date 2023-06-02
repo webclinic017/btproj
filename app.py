@@ -141,6 +141,8 @@ def load():
                 north_item = north_result[0]
                 history = north_result[1]
                 yield '<tr><td>%s</td><td>%s</td><td>loaded</td></tr>' % (north_item[1], str(history.iloc[-1]['date']))
+            global last_update_time
+            last_update_time = format_time()
 
         if types == 'all' or types == 'investigation':
             investigation_history = force_load_investigation()
