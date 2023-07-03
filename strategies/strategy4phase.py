@@ -115,8 +115,9 @@ class Strategy4Phase(OneOrderStrategy):
         elif self.half:
             buy_index = buy_best_index if buy_best_change > self.params.shouldbuypct / 100 else self.next_buy_index_2
             if buy_index == current_position:
+                size = int(self.broker.get_cash() / self.datas[buy_index].close[0] * 0.95)
                 self.log('second half')
-                self.buy_stock(buy_index, buy_reason=REASON_MAIN)
+                self.buy_stock(buy_index, size=size, buy_reason=REASON_MAIN)
                 self.half = False
 
         if self.p.mode == 2 or self.p.mode == 3:

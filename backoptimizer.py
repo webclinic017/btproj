@@ -12,6 +12,7 @@ from strategies.strategy4ATR import Strategy4ATR
 from strategies.strategy4phase import Strategy4Phase
 from strategies.strategy5 import Strategy5
 from strategies.strategySMA import StrategySMA
+from strategies.strategyaccu import StrategyAccuValue
 from strategies.strategynorth import StrategyNorth
 from multiprocessing import cpu_count
 
@@ -39,10 +40,11 @@ if __name__ == "__main__":
         # ('2015-12-01', '2021-07-07'), #1
         ('2017-01-01', '2021-07-07'), #1 ETF
         # ('2018-01-22', '2020-06-30'),
-        # ('2016-07-22', '2020-07-07'), #2
+        ('2016-07-22', '2020-07-07'), #2
         # ('2016-07-22', '2019-01-30'),
         # ('2015-05-01', '2019-01-01'),
         # ('2021-03-20', None), #3
+        # ('2020-01-01', None), #KZZ
         # (None, None)
         # ('2017-01-01', '2017-12-31'),
         # ('2017-01-01', '2018-12-31'),
@@ -63,11 +65,19 @@ if __name__ == "__main__":
         #                     sellperiod=[5, 10, 20, 30, 60, 120], minchgpct=range(0, 4, 1),
         #                     printlog=False, mode=1, starttradedt=start)
         # cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
-        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
+        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
         #                     printlog=False, starttradedt=start, opt=True)
-        cerebro.optstrategy(Strategy4Phase, buyperiod=range(17, 23), sellperiod=range(17, 23), minchgpct=range(0, 4, 1),
-                            shouldbuypct=[-0.3, 0, 0.3, 0.5], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
-                            halfrate=[10, 50], backdays=[1, 2, 3, 4, 5],
+        # cerebro.optstrategy(Strategy4Phase, buyperiod=range(17, 23), sellperiod=range(17, 23), minchgpct=range(0, 4, 1),
+        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
+        #                     halfrate=[2, 4, 10], backdays=[3, 10, 20, 60],
+        #                     printlog=False, starttradedt=start, opt=True)
+        # cerebro.optstrategy(Strategy4Phase, buyperiod=range(17, 23), sellperiod=range(17, 23), minchgpct=range(0, 4, 1),
+        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
+        #                     halfrate=[2, 4, 10], backdays=[3, 10, 20, 60],
+        #                     printlog=False, starttradedt=start, opt=True)
+        cerebro.optstrategy(Strategy4Phase, buyperiod=[18, 19], sellperiod=[17, 22], minchgpct=range(0, 4, 1),
+                            shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5))", mode=2,
+                            halfrate=[2, 4, 5, 10, 20, 50], backdays=[3, 5, 10, 20, 30, 60],
                             printlog=False, starttradedt=start, opt=True)
         # cerebro.optstrategy(Strategy4, buyperiod=18, sellperiod=23, minchgpct=range(0, 4, 1),
         #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1],
@@ -119,6 +129,11 @@ if __name__ == "__main__":
         #                     printlog=False)
         # cerebro.optstrategy(Strategy2SMA, smaperiodfast=[5, 10, 20], smaperiodslow1=[20, 30, 50, 60],
         #                     smaperiodslow2=[20, 30, 50, 60], mode=[1, 2], printlog=False, starttradedt=start)
+        # cerebro.optstrategy(StrategyAccuValue, stock_code=Stock.CYB50ETF.code,
+        #                     buy_percent=[-5, -3, -1, -0.8, -0.5, -0.3, 0, 0.3, 0.5, 0.8, 1, 3, 5],
+        #                     sell_percent=[-5, -3, -1, -0.8, -0.5, -0.3, 0, 0.3, 0.5, 0.8, 1, 3, 5],
+        #                     printlog=False, starttradedt=start)
+
         cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe_ratio')
         cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')
         cerebro.addanalyzer(bt.analyzers.DrawDown, _name='drawdown')
@@ -130,8 +145,8 @@ if __name__ == "__main__":
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500],
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.ZZ1000],
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.GZ2000, Stock.ZZ1000],
-            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-            [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
+            [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
+            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
             # [Stock.HS300ETF, Stock.CYB50ETF],
             # [Stock.CYB50ETF],
             # [Stock.ZZ500ETF],
@@ -139,6 +154,7 @@ if __name__ == "__main__":
             # [Stock.CYB50],
             # [Stock.HS300],
             # [Stock.A50ETF],
+            # [Stock.KZZETF],
             date_ahead(start, 365),
             end
         )
