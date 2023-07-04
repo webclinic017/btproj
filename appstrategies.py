@@ -33,12 +33,20 @@ strategies = [
         "core": False
     },
     {
+        "label": "Strategy4Phase for HS300ETF/CYB50ETF/ZZ500ETF/KC50ETF mode 2 New Args",
+        "class": Strategy4Phase,
+        "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
+        "data_start": 30,
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))", "buyperiod": 18, "sellperiod": 22, "minchgpct": 1, "shouldbuypct": -0.5, "halfrate": 10, "backdays": 3},
+        "core": True
+    },
+    {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/KC50ETF mode 2 New Args",
         "class": Strategy4,
         "stocks": [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
         "data_start": 30,
-        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))"},
-        "core": True
+        "args": {"mode": 2, "rsi": "((30, 5), (25, 5), (24, 5), (20, 5))", "buyperiod": 16, "sellperiod": 19, "minchgpct": 3, "shouldbuypct": -1},
+        "core": False
     },
     {
         "label": "Strategy4 for HS300ETF/CYB50ETF/ZZ500ETF/ZZ1000ETF mode 2 New Args",
