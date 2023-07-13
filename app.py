@@ -129,11 +129,13 @@ def load():
             if coreonly != 'True' or stock.core:
                 if types == 'all' or types == 'value':
                     history = force_load_stock_history_2(stock.code)
-                    yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td></tr>' % (stock.code, stock.cnname, str(history.iloc[-1]['date']))
+                    yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td><td>%s</td></tr>' \
+                        % (stock.code, stock.cnname, str(history.iloc[-1]['date']), str(history.iloc[-1]['close']))
                 if types == 'all' or types == 'accu':
                     if not stock.is_index:
                         accu_history = force_load_etf_accu_history(stock.code)
-                        yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td></tr>' % (stock.code, stock.cnname, str(accu_history.iloc[0]['date']))
+                        yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td><td>%s</td></tr>' \
+                            % (stock.code, stock.cnname, str(accu_history.iloc[0]['date']), str(history.iloc[-1]['close']))
 
         if types == 'all' or types == 'value':
             north_results = force_load_north()
