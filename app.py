@@ -2,6 +2,7 @@ import datetime
 import pathlib
 import threading
 import time
+import pytz
 
 import backtrader as bt
 import matplotlib
@@ -463,7 +464,7 @@ def log(msg):
 
 
 def format_time():
-    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S %Z")
 
 
 def background_job():
