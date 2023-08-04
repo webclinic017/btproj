@@ -1,4 +1,5 @@
 import datetime
+import gc
 import pathlib
 import threading
 import time
@@ -113,6 +114,8 @@ def load():
     coreonly = request.args.get('coreonly', default="False")
     types = request.args.get('types', default="all")
 
+    gc.collect()
+    
     def generate():
         yield """
 <html>
@@ -471,6 +474,7 @@ def background_job():
     global last_update_time
     log('background_job start')
     try:
+        gc.collect()
         for stock in stocks.Stock:
             force_load_stock_history_2(stock.code)
         force_load_north()
