@@ -48,6 +48,8 @@ def daily_strategy():
             logs.append(make_link(strategy["label"], "log/%d" % strategy_id))
             for stock in strategy["stocks"]:
                 logs.append(make_link(stock.cnname, "dataplot/%s?accu=False" % stock.code))
+            if strategy["core"]:
+                logs.append('*')
             try:
                 logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                                   starttradedt=start_trade_date, **strategy["args"])
@@ -104,7 +106,7 @@ def daily_strategy_plot(id, start_date, end_date):
 def daily_strategy_pyfolio(id, start_date, end_date):
     benchmark_idx = eval(request.args.get('benchmark', default='0'))
     strategy = get_strategies()[id]
-    html = run_pyfolio(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+    html = run_pyfolio(id, strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
                     starttradedt=start_date, printLog=False, title=strategy["label"], benchmark_idx=benchmark_idx, **strategy["args"])
     return html
 
@@ -115,7 +117,7 @@ def load():
     types = request.args.get('types', default="all")
 
     gc.collect()
-    
+
     def generate():
         yield """
 <html>
@@ -285,7 +287,7 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
     return pathlib.Path(filename).read_text()
 
 
-def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None,
+def run_pyfolio(id, strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None,
                 benchmark_idx=0, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
@@ -313,7 +315,7 @@ def run_pyfolio(strategy, stocks, start=None, end=None, data_start=0, starttrade
     folder = 'report'
     pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
 
-    filename = folder + '/app.html'
+    filename = folder + '/pyfolio' + str(id) + '.html'
 
     matplotlib.pyplot.switch_backend('Agg')
 
