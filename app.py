@@ -4,6 +4,7 @@ import pathlib
 import threading
 import time
 import pytz
+import pandas as pd
 
 import backtrader as bt
 import matplotlib
@@ -51,7 +52,8 @@ def daily_strategy():
             if strategy["core"]:
                 logs.append('*')
             try:
-                logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+                logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date,
+                                  data_start=strategy["data_start"],
                                   starttradedt=start_trade_date, **strategy["args"])
             except:
                 logs.append("Error. Maybe no data in this period.")
@@ -76,7 +78,8 @@ def daily_strategy_logs(id):
 
     strategy = get_strategies()[id]
     logs = [strategy["label"]]
-    logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+    logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date,
+                      data_start=strategy["data_start"],
                       starttradedt=start_trade_date, printLog=True, preview=preview,
                       **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
@@ -95,7 +98,8 @@ def daily_strategy_logs(id):
 @app.route('/plot/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_plot(id, start_date, end_date):
     strategy = get_strategies()[id]
-    html = run_plot(strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
+    html = run_plot(strategy["class"], strategy["stocks"], start=start_date, end=end_date,
+                    data_start=strategy["data_start"],
                     starttradedt=start_date, printLog=False, **strategy["args"])
     return html
 
@@ -106,8 +110,19 @@ def daily_strategy_plot(id, start_date, end_date):
 def daily_strategy_pyfolio(id, start_date, end_date):
     benchmark_idx = eval(request.args.get('benchmark', default='0'))
     strategy = get_strategies()[id]
-    html = run_pyfolio(id, strategy["class"], strategy["stocks"], start=start_date, end=end_date, data_start=strategy["data_start"],
-                    starttradedt=start_date, printLog=False, title=strategy["label"], benchmark_idx=benchmark_idx, **strategy["args"])
+    html = run_pyfolio(id, strategy["class"], strategy["stocks"], start=start_date, end=end_date,
+                       data_start=strategy["data_start"],
+                       starttradedt=start_date, printLog=False, title=strategy["label"], benchmark_idx=benchmark_idx,
+                       **strategy["args"])
+    return html
+
+
+@app.route("/multipyfolio")
+def daily_multi_pyfolio():
+    ids_str = request.args.get('ids')
+    start_date, end_date, _ = get_request_dates()
+    ids = list(map(int, ids_str.split(",")))
+    html = run_multi_pyfolio(ids=ids, start=start_date, end=end_date, starttradedt=start_date, printLog=False)
     return html
 
 
@@ -141,7 +156,8 @@ def load():
                     if not stock.is_index:
                         accu_history = force_load_etf_accu_history(stock.code)
                         yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td><td>%s</td></tr>' \
-                            % (stock.code, stock.cnname, str(accu_history.iloc[0]['date']), str(history.iloc[-1]['close']))
+                            % (
+                            stock.code, stock.cnname, str(accu_history.iloc[0]['date']), str(history.iloc[-1]['close']))
 
         if types == 'all' or types == 'value':
             north_results = force_load_north()
@@ -154,7 +170,8 @@ def load():
 
         if types == 'all' or types == 'investigation':
             investigation_history = force_load_investigation()
-            yield '<tr><td>机构调研</td><td>%s</td><td>loaded</td></tr>' % (str(investigation_history["公告日期"].iloc[0]))
+            yield '<tr><td>机构调研</td><td>%s</td><td>loaded</td></tr>' % (
+                str(investigation_history["公告日期"].iloc[0]))
 
         yield '</table></div>'
         yield '<div>Finished</div>'
@@ -180,7 +197,7 @@ def data(stock_code, rows):
     if reverse == 'True':
         lines = [lines[0]] + lines[-rows:][::-1]
     else:
-        lines = lines[:rows+1]
+        lines = lines[:rows + 1]
     lines = list(map(lambda l: l.split(","), lines))
 
     return render_template('data.html', stock=stock, stock_code=stock_code, lines=lines)
@@ -213,11 +230,12 @@ def datapyfolio(stock_code, start_date, end_date):
         start_date = str(today - datetime.timedelta(days=365))
     stock = get_stock(stock_code)
     html = run_data_pyfolio(stock, start=start_date, end=end_date, show_accu=False, show_sma=False,
-                         show_rsi=False, show_macd=False, stock_code=stock.code)
+                            show_rsi=False, show_macd=False, stock_code=stock.code)
     return html
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, preview=False, **kwargs):
+def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, preview=False,
+        **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -289,10 +307,62 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
 
 def run_pyfolio(id, strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None,
                 benchmark_idx=0, **kwargs):
+    datas, dfs, returns = run_returns(strategy, stocks, start, end, data_start, starttradedt, printLog, **kwargs)
+
+    folder = 'report'
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+
+    filename = folder + '/pyfolio_' + str(id) + '_' + str(benchmark_idx) + '.html'
+
+    matplotlib.pyplot.switch_backend('Agg')
+
+    quantstats.reports.html(
+        returns,
+        benchmark=dfs[benchmark_idx]['close'],
+        benchmark_title=get_data_name(datas[benchmark_idx]),
+        output=filename,
+        # download_filename=filename,
+        title=title)
+
+    return pathlib.Path(filename).read_text()
+
+
+def run_multi_pyfolio(ids=None, start=None, end=None, starttradedt=None, printLog=False):
+    returns_list = dict()
+    for id in ids:
+        strategy = get_strategies()[id-1]
+        _, _, returns = run_returns(strategy["class"], strategy["stocks"], start, end, strategy["data_start"],
+                                    starttradedt, printLog, **strategy["args"])
+        returns_list[strategy['label']] = returns
+
+    returns_df = pd.concat(returns_list, axis=1)
+    returns_df.fillna(value=0, inplace=True)
+
+    folder = 'report'
+    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+
+    filename = folder + '/multi_pyfolio.html'
+
+    matplotlib.pyplot.switch_backend('Agg')
+
+    quantstats.reports.html(
+        returns_df,
+        output=filename,
+        # download_filename=filename,
+        title='Multi Strategies')
+
+    return pathlib.Path(filename).read_text()
+
+
+def run_returns(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False,
+                **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
 
+    start = parse_empty(start)
+    end = parse_empty(end)
+    starttradedt = parse_empty(starttradedt)
     if starttradedt is None:
         starttradedt = start
 
@@ -312,22 +382,42 @@ def run_pyfolio(id, strategy, stocks, start=None, end=None, data_start=0, startt
     returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
     returns.index = returns.index.tz_convert(None)
 
-    folder = 'report'
-    pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
+    return datas, dfs, returns
 
-    filename = folder + '/pyfolio' + str(id) + '.html'
 
-    matplotlib.pyplot.switch_backend('Agg')
+def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, preview=False,
+        **kwargs):
+    cerebro = bt.Cerebro(stdstats=False)
 
-    quantstats.reports.html(
-        returns,
-        benchmark=dfs[benchmark_idx]['close'],
-        benchmark_title=get_data_name(datas[benchmark_idx]),
-        output="file",
-        download_filename=filename,
-        title=title)
+    strategy_class = strategy
 
-    return pathlib.Path(filename).read_text()
+    start = parse_empty(start)
+    end = parse_empty(end)
+    starttradedt = parse_empty(starttradedt)
+    if starttradedt is None:
+        starttradedt = start
+
+    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
+
+    datas, _ = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, preview=preview)
+
+    cerebro.broker.setcash(1000000.0)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
+    cerebro.broker.setcommission(commission=0.00025)
+
+    if len(datas) == 1:
+        cerebro.addobserver(Trades)
+    else:
+        cerebro.addobserver(DataTrades)
+
+    logs = [str(strategy_class.__name__), 'Starting Portfolio Value: %.3f' % cerebro.broker.getvalue()]
+
+    cerebro.run()
+    logs = logs + cerebro.runstrats[0][0].logs
+
+    logs.append('Final Portfolio Value: %.3f' % cerebro.broker.getvalue())
+
+    return logs
 
 
 def run_data_plot(stock, start=None, end=None, data_start=0, **kwargs):

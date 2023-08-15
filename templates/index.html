@@ -27,6 +27,7 @@
       {% if strategy["core"] %}
       *
       {% endif %}
+      {{loop.index}}
       {{strategy["label"]}}
 
       <a class="sublink" href="log/{{strategy['id']}}">Log</a>
@@ -59,6 +60,17 @@
   </div>
   <div class="item">
       <a href="datalist">Show Data List</a>
+  </div>
+  <div class="item">
+      <form action="/multipyfolio">
+          <fieldset>
+              <legend>Multi Pyfolio</legend>
+              Start：<input type="text" name="start" value="2022-01-01"/>
+              End：<input type="text" name="end" value=""/>
+              Strategies: <input type="text" name="ids" value="4,5,10"/>
+              <input type="submit" value="Submit">
+          </fieldset>
+      </form>
   </div>
 </body>
 </html>
