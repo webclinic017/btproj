@@ -114,14 +114,14 @@ strategies = [
         "args": {"mode": 1},
         "core": False
     },
-    {
-        "label": "StrategyAccuValue for KZZETF",
-        "class": StrategyAccuValue,
-        "stocks": [Stock.KZZETF],
-        "data_start": 0,
-        "args": {"stock_code": Stock.KZZETF.code},
-        "core": False
-    }
+    # {
+    #     "label": "StrategyAccuValue for KZZETF",
+    #     "class": StrategyAccuValue,
+    #     "stocks": [Stock.KZZETF],
+    #     "data_start": 0,
+    #     "args": {"stock_code": Stock.KZZETF.code},
+    #     "core": False
+    # }
 ]
 
 for i in range(len(strategies)):

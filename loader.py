@@ -192,10 +192,10 @@ def force_load_etf_accu_history(stock_code, start_date="19990101", end_date=None
     history = loaded_history.rename(columns={'单位净值': 'unit', '累计净值': 'accu', '日增长率': 'change_rate', '净值日期': 'date'})
     history.drop(columns=['申购状态', '赎回状态'], inplace=True)
 
-    latest_unit = history.iloc[0]['unit']
-    latest_accu = history.iloc[0]['accu']
+    latest_unit = history.iloc[-1]['unit']
+    latest_accu = history.iloc[-1]['accu']
     convert_rate = latest_unit / latest_accu
-    history['accu_qfq'] = history['accu'] * convert_rate
+    history['accu_qfq'] = round(history['accu'] * convert_rate, 4)
 
     history.to_csv(filename)
     return history

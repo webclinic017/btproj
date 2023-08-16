@@ -29,7 +29,7 @@ class StrategyAccuValue(OneOrderStrategy):
 
         has_position = True if self.getposition() else False
         close_today = self.data.close[0]
-        accu_today = self.accu.accu[0]
+        accu_today = self.accu.accu_values.accu_qfq[0]
 
         next_log = '%s / Close %.3f / Accu %.3f / (Accu - Close) %.3f' % (
             has_position, close_today, accu_today, accu_today - close_today)

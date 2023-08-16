@@ -156,8 +156,7 @@ def load():
                     if not stock.is_index:
                         accu_history = force_load_etf_accu_history(stock.code)
                         yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td><td>%s</td></tr>' \
-                            % (
-                            stock.code, stock.cnname, str(accu_history.iloc[0]['date']), str(history.iloc[-1]['close']))
+                            % (stock.code, stock.cnname, str(accu_history.iloc[-1]['date']), str(accu_history.iloc[-1]['accu_qfq']))
 
         if types == 'all' or types == 'value':
             north_results = force_load_north()
