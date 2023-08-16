@@ -384,41 +384,6 @@ def run_returns(strategy, stocks, start=None, end=None, data_start=0, starttrade
     return datas, dfs, returns
 
 
-def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, preview=False,
-        **kwargs):
-    cerebro = bt.Cerebro(stdstats=False)
-
-    strategy_class = strategy
-
-    start = parse_empty(start)
-    end = parse_empty(end)
-    starttradedt = parse_empty(starttradedt)
-    if starttradedt is None:
-        starttradedt = start
-
-    cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
-
-    datas, _ = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, preview=preview)
-
-    cerebro.broker.setcash(1000000.0)
-    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
-    cerebro.broker.setcommission(commission=0.00025)
-
-    if len(datas) == 1:
-        cerebro.addobserver(Trades)
-    else:
-        cerebro.addobserver(DataTrades)
-
-    logs = [str(strategy_class.__name__), 'Starting Portfolio Value: %.3f' % cerebro.broker.getvalue()]
-
-    cerebro.run()
-    logs = logs + cerebro.runstrats[0][0].logs
-
-    logs.append('Final Portfolio Value: %.3f' % cerebro.broker.getvalue())
-
-    return logs
-
-
 def run_data_plot(stock, start=None, end=None, data_start=0, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
