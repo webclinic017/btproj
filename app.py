@@ -17,7 +17,7 @@ from flask import Flask, stream_with_context, request, render_template
 import stocks
 from appstrategies import get_strategies
 from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2, \
-    force_load_etf_accu_history, force_load_investigation
+    force_load_etf_accu_history, force_load_investigation, load_stock_history
 from oberservers.RelativeValue import RelativeValue
 from strategies.base import get_data_name
 from strategies.strategydisplay import StrategyDisplay
@@ -150,13 +150,19 @@ def load():
             if coreonly != 'True' or stock.core:
                 if types == 'all' or types == 'value':
                     history = force_load_stock_history_2(stock.code)
-                    yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td><td>%s</td></tr>' \
-                        % (stock.code, stock.cnname, str(history.iloc[-1]['date']), str(history.iloc[-1]['close']))
+                    date = str(history.iloc[-1]['date'])
+                    close_today = history.iloc[-1]['close']
+                    close_yesterday = history.iloc[-2]['close'] if len(history) >= 2 else close_today
+                    change_rate = round((close_today - close_yesterday) / close_yesterday * 100, 2)
+                    color = 'red' if change_rate >= 0 else 'green'
+                    yield '<tr><td>%s %s</td><td>%s</td><td>loaded</td><td>%s</td><td style="color:%s">%s%%</td></tr>' \
+                        % (stock.code, stock.cnname, date, str(close_today), color, str(change_rate))
                 if types == 'all' or types == 'accu':
                     if not stock.is_index:
                         accu_history = force_load_etf_accu_history(stock.code)
+                        date = str(accu_history.iloc[-1]['date'])
                         yield '<tr><td>%s %s</td><td>%s</td><td>accu loaded</td><td>%s</td></tr>' \
-                            % (stock.code, stock.cnname, str(accu_history.iloc[-1]['date']), str(accu_history.iloc[-1]['accu_qfq']))
+                            % (stock.code, stock.cnname, date, str(accu_history.iloc[-1]['accu_qfq']))
 
         if types == 'all' or types == 'value':
             north_results = force_load_north()
@@ -181,7 +187,24 @@ def load():
 
 @app.route("/datalist")
 def datalist():
-    return render_template('datalist.html', stocks=stocks.Stock)
+    class DataMeta:
+        def __init__(self, stock: stocks.Stock, date:str, close_today: float, change_rate: float, change_rate_color: str):
+            self.stock = stock
+            self.date = date
+            self.close_today = close_today
+            self.change_rate = change_rate
+            self.change_rate_color = change_rate_color
+
+    stock_list = []
+    for stock in stocks.Stock:
+        history = load_stock_history(stock.code)
+        date = history['date_raw'][-1]
+        close_today = history['close'][-1]
+        close_yesterday = history['close'][-2] if len(history) >= 2 else close_today
+        change_rate = round((close_today - close_yesterday) / close_yesterday * 100, 2)
+        change_rate_color = 'red' if change_rate >= 0 else 'green'
+        stock_list.append(DataMeta(stock, date, close_today, change_rate, change_rate_color))
+    return render_template('datalist.html', stocks=stock_list)
 
 
 @app.route("/data/<stock_code>", defaults={'rows': 30})

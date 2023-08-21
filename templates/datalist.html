@@ -9,21 +9,29 @@
 <body>
     <a href="/">Back</a><br/><br/>
 
-    {% for stock in stocks %}
-    <h1>
-        <a href="data/{{stock.code}}">{{stock.cnname}}</a>
-        <a href="dataplot/{{stock.code}}?accu=False">Plot SMA</a>
-        {% if not stock.is_index %}
-        <a href="dataplot/{{stock.code}}?sma=False">Plot Accu</a>
-        {% endif %}
-        <a href="datapyfolio/{{stock.code}}">PyFolio</a>
-    </h1>
-    {% endfor %}
+    <table style="font-size:32px;">
+        {% for stock in stocks %}
+        <tr>
+            <td><a href="data/{{stock.stock.code}}">{{stock.stock.cnname}}</a></td>
+            <td><a href="dataplot/{{stock.stock.code}}?accu=False">Plot SMA</a></td>
+            {% if not stock.stock.is_index %}
+            <td><a href="dataplot/{{stock.stock.code}}?sma=False">Plot Accu</a></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            <td><a href="datapyfolio/{{stock.stock.code}}">PyFolio</a></td>
+            <td style="padding-left:15px;">{{stock.date}}</td>
+            <td style="text-align:right;padding-left:15px;">{{stock.close_today}}</td>
+            <td style="color:{{stock.change_rate_color}};text-align:right;padding-left:15px;">{{stock.change_rate}}</td>
+        </tr>
+        {% endfor %}
+        <tr><td><a href="data/north_all">North All</a></td></Tr>
+        <tr><td><a href="data/north_sh">North Shanghai</a></td></Tr>
+        <tr><td><a href="data/north_sz">North Shenzhen</a></td></Tr>
+        <tr><td><a href="data/investigation?reverse=False">Investigation</a></td></Tr>
+    </table>
 
-    <a href="data/north_all"><h1>North All</h1></a>
-    <a href="data/north_sh"><h1>North Shanghai</h1></a>
-    <a href="data/north_sz"><h1>North Shenzhen</h1></a>
-    <a href="data/investigation?reverse=False"><h1>Investigation</h1></a>
+
 
 </body>
 </html>
