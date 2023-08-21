@@ -35,6 +35,8 @@ class Stock(enum.Enum):
     YYETF = ('YYETF', 'sh512010', '医药ETF', False, False)
     KZZETF = ('KZZETF', 'sh511380', '可转债ETF', False, False)
     JGETF = ('JGETF', 'sh512660', '军工ETF', False, False)
+    RGZNETF = ('RGZNETF', 'sz159819', '人工智能ETF', False, False)
+    XNYETF = ('XNYETF', 'sh516160', '新能源ETF', False, False)
 
     def __init__(self, stockname: str, code: str, cnname: str, core: bool = False, is_index: bool = False):
         self.stockname = stockname
