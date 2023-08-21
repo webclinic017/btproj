@@ -243,13 +243,10 @@ def dataplot(stock_code, start_date, end_date):
     return html
 
 
-@app.route("/datapyfolio/<stock_code>", defaults={'start_date': None, 'end_date': None})
+@app.route("/datapyfolio/<stock_code>", defaults={'start_date': '2017-01-01', 'end_date': None})
 @app.route('/datapyfolio/<stock_code>/<string:start_date>', defaults={'end_date': None})
 @app.route('/datapyfolio/<stock_code>/<string:start_date>/<string:end_date>')
 def datapyfolio(stock_code, start_date, end_date):
-    if start_date is None:
-        today = datetime.date.today()
-        start_date = str(today - datetime.timedelta(days=365))
     stock = get_stock(stock_code)
     html = run_data_pyfolio(stock, start=start_date, end=end_date, show_accu=False, show_sma=False,
                             show_rsi=False, show_macd=False, stock_code=stock.code)
@@ -459,8 +456,8 @@ def run_data_pyfolio(stock, start=None, end=None, data_start=0, **kwargs):
 
     quantstats.reports.html(
         returns,
-        output="file",
-        download_filename=filename,
+        output=filename,
+        # download_filename=filename,
         title=stock.cnname)
 
     return pathlib.Path(filename).read_text()
