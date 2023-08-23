@@ -189,6 +189,8 @@ def load():
 
 @app.route("/datalist")
 def datalist():
+    coreonly = request.args.get('coreonly', default="False")
+
     class DataMeta:
         def __init__(self, stock: stocks.Stock, date:str, close_today: float, change_rate: float, change_rate_color: str):
             self.stock = stock
@@ -199,13 +201,14 @@ def datalist():
 
     stock_list = []
     for stock in stocks.Stock:
-        history = load_stock_history(stock.code)
-        date = history['date_raw'][-1]
-        close_today = history['close'][-1]
-        close_yesterday = history['close'][-2] if len(history) >= 2 else close_today
-        change_rate = round((close_today - close_yesterday) / close_yesterday * 100, 2)
-        change_rate_color = 'red' if change_rate >= 0 else 'green'
-        stock_list.append(DataMeta(stock, date, close_today, change_rate, change_rate_color))
+        if coreonly != 'True' or stock.core:
+            history = load_stock_history(stock.code)
+            date = history['date_raw'][-1]
+            close_today = history['close'][-1]
+            close_yesterday = history['close'][-2] if len(history) >= 2 else close_today
+            change_rate = round((close_today - close_yesterday) / close_yesterday * 100, 2)
+            change_rate_color = 'red' if change_rate >= 0 else 'green'
+            stock_list.append(DataMeta(stock, date, close_today, change_rate, change_rate_color))
     return render_template('datalist.html', stocks=stock_list)
 
 
