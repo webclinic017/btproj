@@ -4,6 +4,8 @@ import backtrader as bt
 
 
 class Stock(enum.Enum):
+    SZ = ('SZ', 'sh000001', '上证', False, True)
+    SC = ('SC', 'sz399001', '深成', False, True)
     HS300 = ('HS300', 'sh000300', '沪深300', False, True)
     ZZ500 = ('ZZ500', 'sh000905', '中证500', False, True)
     CYB50 = ('CYB50', 'sz399673', '创业板50', False, True)
