@@ -3,6 +3,8 @@ import gc
 import pathlib
 import threading
 import time
+from dataclasses import dataclass
+
 import pytz
 import pandas as pd
 
@@ -17,7 +19,7 @@ from flask import Flask, stream_with_context, request, render_template
 import stocks
 from appstrategies import get_strategies
 from loader import load_stock_data, force_load_north, get_datafile_name, date_ahead, force_load_stock_history_2, \
-    force_load_etf_accu_history, force_load_investigation, load_stock_history
+    force_load_etf_accu_history, force_load_investigation, load_stock_history, load_north_single
 from oberservers.RelativeValue import RelativeValue
 from strategies.base import get_data_name
 from strategies.strategydisplay import StrategyDisplay
@@ -191,13 +193,20 @@ def load():
 def datalist():
     coreonly = request.args.get('coreonly', default="False")
 
-    class DataMeta:
-        def __init__(self, stock: stocks.Stock, date:str, close_today: float, change_rate: float, change_rate_color: str):
-            self.stock = stock
-            self.date = date
-            self.close_today = close_today
-            self.change_rate = change_rate
-            self.change_rate_color = change_rate_color
+    @dataclass
+    class StockData:
+        stock: stocks.Stock
+        date: str
+        close_today: float
+        change_rate: float
+        change_rate_color: str
+
+    @dataclass
+    class NorthData:
+        market: str
+        name: str
+        date: str
+        value: float
 
     stock_list = []
     for stock in stocks.Stock:
@@ -208,8 +217,16 @@ def datalist():
             close_yesterday = history['close'][-2] if len(history) >= 2 else close_today
             change_rate = round((close_today - close_yesterday) / close_yesterday * 100, 2)
             change_rate_color = 'red' if change_rate >= 0 else 'green'
-            stock_list.append(DataMeta(stock, date, close_today, change_rate, change_rate_color))
-    return render_template('datalist.html', stocks=stock_list)
+            stock_list.append(StockData(stock, date, close_today, change_rate, change_rate_color))
+
+    north_list = []
+    for market in ['all', 'sh', 'sz']:
+        history = load_north_single(market)
+        date = history['date_raw'][-1]
+        value = history['value'][-1]
+        north_list.append(NorthData(market, 'North ' + market.upper(), date, value))
+
+    return render_template('datalist.html', stock_list=stock_list, north_list=north_list)
 
 
 @app.route("/data/<stock_code>", defaults={'rows': 30})

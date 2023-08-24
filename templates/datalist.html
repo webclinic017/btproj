@@ -10,7 +10,7 @@
     <a href="/">Back</a><br/><br/>
 
     <table style="font-size:32px;">
-        {% for stock in stocks %}
+        {% for stock in stock_list %}
         <tr>
             <td><a href="data/{{stock.stock.code}}">{{stock.stock.cnname}}</a></td>
             <td><a href="dataplot/{{stock.stock.code}}?accu=False">Plot SMA</a></td>
@@ -25,9 +25,19 @@
             <td style="color:{{stock.change_rate_color}};text-align:right;padding-left:15px;">{{stock.change_rate}}%</td>
         </tr>
         {% endfor %}
-        <tr><td><a href="data/north_all">North All</a></td></Tr>
-        <tr><td><a href="data/north_sh">North Shanghai</a></td></Tr>
-        <tr><td><a href="data/north_sz">North Shenzhen</a></td></Tr>
+
+        {% for north in north_list %}
+        <tr>
+            <td><a href="data/north_{{north.market}}">{{north.name}}</a></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="padding-left:15px;">{{north.date}}</td>
+            <td style="text-align:right;padding-left:15px;">{{north.value}}</td>
+            <td></td>
+        </tr>
+        {% endfor %}
+
         <tr><td><a href="data/investigation?reverse=False">Investigation</a></td></Tr>
     </table>
 

@@ -28,7 +28,7 @@ def stock_zh_a_hist(
     """
     symbol = code[2:]
     code_id_dict = code_id_map_em()
-    if symbol in code_id_dict:
+    if symbol in code_id_dict and code != 'sh000001':
         code_id = code_id_dict[symbol]
     else:
         if code[0:2] == 'sh':
