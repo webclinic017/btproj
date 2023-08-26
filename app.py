@@ -370,11 +370,13 @@ def run_pyfolio(id, strategy, stocks, start=None, end=None, data_start=0, startt
 
 def run_multi_pyfolio(ids=None, start=None, end=None, starttradedt=None, printLog=False):
     returns_list = dict()
+    sub_titles = ['Multi Strategies']
     for id in ids:
         strategy = get_strategies()[id-1]
         _, _, returns = run_returns(strategy["class"], strategy["stocks"], start, end, strategy["data_start"],
                                     starttradedt, printLog, **strategy["args"])
-        returns_list[strategy['label']] = returns
+        returns_list[str(id)] = returns
+        sub_titles.append('%d: %s' % (id, strategy['label']))
 
     returns_df = pd.concat(returns_list, axis=1)
     returns_df.fillna(value=0, inplace=True)
@@ -390,7 +392,7 @@ def run_multi_pyfolio(ids=None, start=None, end=None, starttradedt=None, printLo
         returns_df,
         output=filename,
         # download_filename=filename,
-        title='Multi Strategies')
+        title="<br/>".join(sub_titles))
 
     return pathlib.Path(filename).read_text()
 
