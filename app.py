@@ -55,8 +55,8 @@ def daily_strategy():
                 logs.append('*')
             try:
                 logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date,
-                                  data_start=strategy["data_start"],
-                                  starttradedt=start_trade_date, **strategy["args"])
+                                  data_start=strategy["data_start"], starttradedt=start_trade_date,
+                                  time_frame=strategy.get('time_frame'), **strategy["args"])
             except:
                 logs.append("Error. Maybe no data in this period.")
             logs.append('')
@@ -75,13 +75,16 @@ def daily_strategy():
 
 @app.route("/log/<int:id>")
 def daily_strategy_logs(id):
-    (start_date, end_date, start_trade_date) = get_request_dates()
+    strategy = get_strategies()[id]
+    if strategy.get("start_date") is None:
+        (start_date, end_date, start_trade_date) = get_request_dates()
+    else:
+        (start_date, end_date, start_trade_date) = get_request_dates(default_start_date=strategy.get("start_date"))
     preview = eval(request.args.get('preview', default="False"))
 
-    strategy = get_strategies()[id]
     logs = [strategy["label"]]
     logs = logs + run(strategy["class"], strategy["stocks"], start=start_date, end=end_date,
-                      data_start=strategy["data_start"],
+                      data_start=strategy["data_start"], time_frame=strategy.get('time_frame'),
                       starttradedt=start_trade_date, printLog=True, preview=preview,
                       **strategy["args"])
     logs = list(map(lambda line: decorate_line(line), logs))
@@ -100,8 +103,10 @@ def daily_strategy_logs(id):
 @app.route('/plot/<int:id>/<string:start_date>/<string:end_date>')
 def daily_strategy_plot(id, start_date, end_date):
     strategy = get_strategies()[id]
+    if start_date == '2022-12-30' and strategy.get("start_date") is not None:
+        start_date = strategy.get("start_date")
     html = run_plot(strategy["class"], strategy["stocks"], start=start_date, end=end_date,
-                    data_start=strategy["data_start"],
+                    data_start=strategy["data_start"], time_frame=strategy.get("time_frame"),
                     starttradedt=start_date, printLog=False, **strategy["args"])
     return html
 
@@ -113,7 +118,7 @@ def daily_strategy_pyfolio(id, start_date, end_date):
     benchmark_idx = eval(request.args.get('benchmark', default='0'))
     strategy = get_strategies()[id]
     html = run_pyfolio(id, strategy["class"], strategy["stocks"], start=start_date, end=end_date,
-                       data_start=strategy["data_start"],
+                       data_start=strategy["data_start"], time_frame=strategy.get("time_frame"),
                        starttradedt=start_date, printLog=False, title=strategy["label"], benchmark_idx=benchmark_idx,
                        **strategy["args"])
     return html
@@ -258,7 +263,7 @@ def dataplot(stock_code, start_date, end_date):
 
     if start_date is None:
         today = datetime.date.today()
-        start_date = str(today - datetime.timedelta(days=365))
+        start_date = str(today - datetime.timedelta(days=7300))
     stock = get_stock(stock_code)
     html = run_data_plot(stock, start=start_date, end=end_date, show_accu=show_accu, show_sma=show_sma,
                          show_rsi=show_rsi, show_macd=show_macd, stock_code=stock.code)
@@ -276,7 +281,7 @@ def datapyfolio(stock_code, start_date, end_date):
 
 
 def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, preview=False,
-        **kwargs):
+        time_frame=None, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -289,7 +294,7 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
-    datas, _ = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, preview=preview)
+    datas, _ = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, time_frame=time_frame, preview=preview)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -310,7 +315,8 @@ def run(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None,
     return logs
 
 
-def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, **kwargs):
+def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False,
+             time_frame=None, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -320,7 +326,7 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
-    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, time_frame=time_frame)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -347,8 +353,9 @@ def run_plot(strategy, stocks, start=None, end=None, data_start=0, starttradedt=
 
 
 def run_pyfolio(id, strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False, title=None,
-                benchmark_idx=0, **kwargs):
-    datas, dfs, returns = run_returns(strategy, stocks, start, end, data_start, starttradedt, printLog, **kwargs)
+                benchmark_idx=0, time_frame=None, **kwargs):
+    datas, dfs, returns = run_returns(strategy, stocks, start, end, data_start, starttradedt, printLog,
+                                      time_frame=time_frame, **kwargs)
 
     folder = 'report'
     pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
@@ -374,7 +381,7 @@ def run_multi_pyfolio(ids=None, start=None, end=None, starttradedt=None, printLo
     for id in ids:
         strategy = get_strategies()[id-1]
         _, _, returns = run_returns(strategy["class"], strategy["stocks"], start, end, strategy["data_start"],
-                                    starttradedt, printLog, **strategy["args"])
+                                    starttradedt, printLog, time_frame=strategy.get("time_frame"), **strategy["args"])
         returns_list[str(id)] = returns
         sub_titles.append('%d: %s' % (id, strategy['label']))
 
@@ -398,7 +405,7 @@ def run_multi_pyfolio(ids=None, start=None, end=None, starttradedt=None, printLo
 
 
 def run_returns(strategy, stocks, start=None, end=None, data_start=0, starttradedt=None, printLog=False,
-                **kwargs):
+                time_frame=None, **kwargs):
     cerebro = bt.Cerebro(stdstats=False)
 
     strategy_class = strategy
@@ -411,7 +418,7 @@ def run_returns(strategy, stocks, start=None, end=None, data_start=0, starttrade
 
     cerebro.addstrategy(strategy_class, printlog=printLog, starttradedt=starttradedt, **kwargs)
 
-    datas, dfs = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end)
+    datas, dfs = load_stock_data(cerebro, stocks, date_ahead(start, data_start), end, time_frame=time_frame)
 
     cerebro.broker.setcash(1000000.0)
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=95)
@@ -530,8 +537,8 @@ def make_link(text, url):
     return '[LINK]|%s|%s' % (text, url)
 
 
-def get_request_dates():
-    start_date = request.args.get('start', default="2022-12-30")
+def get_request_dates(default_start_date: str = "2022-12-30"):
+    start_date = request.args.get('start', default=default_start_date)
     start_trade_date = request.args.get('start_trade_date', default=None)
     end_date = request.args.get('end', default=None)
     return start_date, end_date, start_trade_date

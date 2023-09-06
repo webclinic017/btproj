@@ -1,5 +1,5 @@
 import backtrader as bt
-from backtrader.indicators import MovingAverageSimple, RelativeStrengthIndex, MACD
+from backtrader.indicators import MovingAverageSimple, RelativeStrengthIndex, MACD, MACDHisto
 
 from indicators.AccuValueInd import AccuValueInd
 
@@ -30,7 +30,8 @@ class StrategyDisplay(bt.Strategy):
         if self.p.show_rsi:
             self.rsi = RelativeStrengthIndex()
         if self.p.show_macd:
-            self.macd = MACD()
+            # self.macd = MACD()
+            self.macdhist = MACDHisto()
         if self.p.show_accu and self.p.stock_code is not None:
             self.accu = AccuValueInd(stock_code=self.p.stock_code)
 

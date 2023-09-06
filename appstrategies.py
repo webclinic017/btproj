@@ -3,8 +3,10 @@ from strategies.strategy4 import Strategy4
 from strategies.strategy4phase import Strategy4Phase
 from strategies.strategySMA import StrategySMA
 from strategies.strategyaccu import StrategyAccuValue
+from strategies.strategymacd import StrategyMACD
 from strategies.strategynorth import StrategyNorth
 from strategies.strategynorthsma import StrategyNorthWithSMA
+import backtrader as bt
 
 
 strategies = [
@@ -112,6 +114,56 @@ strategies = [
         "stocks": [Stock.CYB50ETF],
         "data_start": 60,
         "args": {"mode": 1},
+        "core": False
+    },
+    {
+        "label": "StrategyMACD for HS300ETF",
+        "class": StrategyMACD,
+        "stocks": [Stock.HS300ETF],
+        "data_start": 30,
+        "args": {},
+        "time_frame": bt.TimeFrame.Months,
+        "start_date": "2010-01-01",
+        "core": False
+    },
+    {
+        "label": "StrategyMACD for CYB50ETF",
+        "class": StrategyMACD,
+        "stocks": [Stock.CYB50ETF],
+        "data_start": 30,
+        "args": {},
+        "time_frame": bt.TimeFrame.Months,
+        "start_date": "2010-01-01",
+        "core": False
+    },
+    {
+        "label": "StrategyMACD for KC50ETF",
+        "class": StrategyMACD,
+        "stocks": [Stock.KC50ETF],
+        "data_start": 30,
+        "args": {},
+        "time_frame": bt.TimeFrame.Months,
+        "start_date": "2010-01-01",
+        "core": False
+    },
+    {
+        "label": "StrategyMACD for ZZ500ETF",
+        "class": StrategyMACD,
+        "stocks": [Stock.ZZ500ETF],
+        "data_start": 30,
+        "args": {},
+        "time_frame": bt.TimeFrame.Months,
+        "start_date": "2010-01-01",
+        "core": False
+    },
+    {
+        "label": "StrategyMACD for GZMT",
+        "class": StrategyMACD,
+        "stocks": [Stock.GZMT],
+        "data_start": 30,
+        "args": {},
+        "time_frame": bt.TimeFrame.Months,
+        "start_date": "2010-01-01",
         "core": False
     },
     # {

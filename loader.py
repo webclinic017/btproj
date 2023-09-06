@@ -210,16 +210,20 @@ def load_etf_accu_history(stock_code, start=None, end=None, preview=False):
     return process_stock_history(history, start, end, preview)
 
 
-def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True, preview=False):
+def load_stock_data(cerebro: bt.Cerebro, stocks: List[stocks.Stock], start: str, end: str, cnname: bool = True,
+                    preview: bool = False, time_frame: bt.TimeFrame = None):
     datas = []
     dfs = []
     for stock in stocks:
         df = load_stock_history(stock.code, start, end, preview)
         data = bt.feeds.PandasData(dataname=df)
-        if cnname:
-            cerebro.adddata(data, name=stock.cnname)
-        else:
-            cerebro.adddata(data, name=stock.stockname)
+        data_name = stock.cnname if cnname else stock.name
+        cerebro.adddata(data, name=data_name)
+        if time_frame is not None:
+            cerebro.resampledata(data,
+                                 timeframe=time_frame,
+                                 compression=1,
+                                 name=data_name)
         datas.append(data)
         dfs.append(df)
     return datas, dfs
