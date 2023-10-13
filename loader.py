@@ -1,6 +1,5 @@
 import datetime
 import pathlib
-from decimal import Decimal
 from typing import List
 
 import akshare as ak
@@ -101,7 +100,7 @@ def force_load_north_single(type, indicator):
     if existing_history is None:
         history = new_history
     else:
-        history = existing_history.append(new_history).drop_duplicates(subset=['date'], keep='last')
+        history = pd.concat([existing_history, new_history]).drop_duplicates(subset=['date'], keep='last')
         history = history.drop(columns=['Unnamed: 0'])
         history.set_index(keys=[pd.Index(range(len(history)))], inplace=True)
 
@@ -123,7 +122,7 @@ def force_load_investigation():
         history = new_history
     else:
         existing_history = existing_history[existing_history["公告日期"] <= str(new_history["公告日期"].min())]
-        history = new_history.append(existing_history)
+        history = pd.concat([new_history, existing_history])
 
     history.drop(columns=['序号', 'Unnamed: 0', '接待方式', '接待人员', '接待地点', '最新价', '涨跌幅'], errors='ignore', inplace=True)
     history.to_csv(filename, encoding='utf_8_sig')
@@ -252,5 +251,5 @@ if __name__ == '__main__':
     force_load_north_2()
     print('north 2 loaded')
 
-    force_load_market_pe_history()
-    print('market PE loaded')
+    # force_load_market_pe_history()
+    # print('market PE loaded')

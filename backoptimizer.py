@@ -38,7 +38,7 @@ if __name__ == "__main__":
         # ('2014-06-18', '2019-01-01'),
         # ('2019-01-01', '2020-12-31'),
         # ('2015-12-01', '2021-07-07'), #1
-        # ('2017-01-01', '2021-07-07'), #1 ETF
+        ('2017-01-01', '2021-07-07'), #1 ETF
         # ('2018-01-22', '2020-06-30'),
         # ('2016-07-22', '2020-07-07'), #2
         # ('2016-07-22', '2019-01-30'),
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         # ('2017-01-01', '2019-12-31'),
         # ('2017-01-01', '2020-12-31'),
         # ('2021-11-08', '2022-05-01'), #A50ETF
-        ('2021-01-01', '2022-06-01'), #KC50ETF
+        # ('2021-01-01', '2022-06-01'), #KC50ETF
     ]
 
     for duration in durations:
@@ -65,9 +65,9 @@ if __name__ == "__main__":
         # cerebro.optstrategy(Strategy4, buyperiod=[5, 10, 20, 30, 60, 90, 120],
         #                     sellperiod=[5, 10, 20, 30, 60, 120], minchgpct=range(0, 4, 1),
         #                     printlog=False, mode=1, starttradedt=start)
-        cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
-                            shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
-                            printlog=False, starttradedt=start, opt=True)
+        # cerebro.optstrategy(Strategy4, buyperiod=range(15, 25), sellperiod=range(15, 25), minchgpct=range(0, 4, 1),
+        #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
+        #                     printlog=False, starttradedt=start, opt=True)
         # cerebro.optstrategy(Strategy4Phase, buyperiod=range(17, 23), sellperiod=range(17, 23), minchgpct=range(0, 4, 1),
         #                     shouldbuypct=[-1, -0.7, -0.5, -0.3, 0, 0.3, 0.5, 1], rsi="((30, 5), (25, 5), (24, 5), (24, 5))", mode=2,
         #                     halfrate=[2, 4, 10, 50], backdays=[3, 10, 20, 60],
@@ -116,13 +116,13 @@ if __name__ == "__main__":
         # cerebro.optstrategy(StrategySMA, smaperiod=[20, 30, 40], devfactor=[1.5, 2.0], daystobuy=[3, 4, 5, 6, 7, 8, 9, 10, 11],
         #                     daystosell=[1, 2, 3, 4, 5], rsihigh=[85, 86], rsilow=[30],
         #                     printlog=False)
-        # cerebro.optstrategy(StrategyNorthWithSMA,
-        #                     periodbull=[120, 250, 500], highpercentbull=[0.6, 0.7, 0.8, 0.9],
-        #                     lowpercentbull=[0.1, 0.2, 0.3, 0.4],
-        #                     periodbear=[120, 250, 500], highpercentbear=[0.6, 0.7, 0.8, 0.9],
-        #                     lowpercentbear=[0.1, 0.2, 0.3, 0.4],
-        #                     maxdrawbackbull=[0, 0.05, 0.1], maxdrawbackbear=[0, 0.05, 0.1],
-        #                     smaperiod=[10, 20, 30], printlog=False)
+        cerebro.optstrategy(StrategyNorthWithSMA,
+                            periodbull=[120, 250, 500], highpercentbull=[0.6, 0.7, 0.8, 0.9],
+                            lowpercentbull=[0.1, 0.2, 0.3, 0.4],
+                            periodbear=[120, 250, 500], highpercentbear=[0.6, 0.7, 0.8, 0.9],
+                            lowpercentbear=[0.1, 0.2, 0.3, 0.4],
+                            maxdrawbackbull=[0, 0.05, 0.1], maxdrawbackbear=[0, 0.05, 0.1],
+                            smaperiod=[10, 20, 30], printlog=False)
         # cerebro.optstrategy(StrategyBias,
         #                     period=[5, 10, 15, 20, 25, 30, 60, 90, 120, 250],
         #                     highpercent=[0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.5, 1, 1.5],
@@ -147,10 +147,10 @@ if __name__ == "__main__":
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.ZZ1000],
             # [Stock.HS300, Stock.CYB50, Stock.ZZ500, Stock.GZ2000, Stock.ZZ1000],
             # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF],
-            [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
+            # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.KC50ETF],
             # [Stock.HS300ETF, Stock.CYB50ETF, Stock.ZZ500ETF, Stock.ZZ1000ETF],
             # [Stock.HS300ETF, Stock.CYB50ETF],
-            # [Stock.CYB50ETF],
+            [Stock.CYB50ETF],
             # [Stock.ZZ500ETF],
             # [Stock.HS300ETF],
             # [Stock.CYB50],

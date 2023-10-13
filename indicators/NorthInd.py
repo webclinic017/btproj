@@ -51,7 +51,7 @@ class NorthValue(bt.Indicator):
         else:
             north_value_today = 0
 
-        north_history.sort_values(by=['value'], inplace=True)
+        north_history = north_history.sort_values(by=['value'])
         history_len = len(north_history)
         north_value_low = north_history.iloc[int(history_len * lowp)]['value']
         north_value_high = north_history.iloc[int(history_len * highp)]['value']

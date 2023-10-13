@@ -217,9 +217,9 @@ def datalist():
     for stock in stocks.Stock:
         if coreonly != 'True' or stock.core:
             history = load_stock_history(stock.code)
-            date = history['date_raw'][-1]
-            close_today = history['close'][-1]
-            close_yesterday = history['close'][-2] if len(history) >= 2 else close_today
+            date = history['date_raw'].iloc[-1]
+            close_today = history['close'].iloc[-1]
+            close_yesterday = history['close'].iloc[-2] if len(history) >= 2 else close_today
             change_rate = round((close_today - close_yesterday) / close_yesterday * 100, 2)
             change_rate_color = 'red' if change_rate >= 0 else 'green'
             stock_list.append(StockData(stock, date, close_today, change_rate, change_rate_color))
@@ -227,8 +227,8 @@ def datalist():
     north_list = []
     for market in ['all', 'sh', 'sz']:
         history = load_north_single(market)
-        date = history['date_raw'][-1]
-        value = history['value'][-1]
+        date = history['date_raw'].iloc[-1]
+        value = history['value'].iloc[-1]
         north_list.append(NorthData(market, 'North ' + market.upper(), date, value))
 
     return render_template('datalist.html', stock_list=stock_list, north_list=north_list)

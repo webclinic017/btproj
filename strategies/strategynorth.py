@@ -44,7 +44,7 @@ class StrategyNorth(OneOrderStrategy):
 
         north_value_today = north_history.iloc[-1]['value']
 
-        north_history.sort_values(by=['value'], inplace=True)
+        north_history = north_history.sort_values(by=['value'])
         history_len = len(north_history)
         north_value_low = north_history.iloc[int(history_len * self.params.lowpercent)]['value']
         north_value_high = north_history.iloc[int(history_len * self.params.highpercent)]['value']

@@ -1,0 +1,12 @@
+akshare
+backtrader
+backtrader-plotting
+bokeh==2.3.3
+Flask
+matplotlib
+numpy==1.23.5
+pandas
+pytz
+QuantStats
+schedule
+ipython
